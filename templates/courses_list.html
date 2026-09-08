@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_courses_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('browse_courses_title') }}</h1>
+        <p style="color: #64748B;">{{ t('browse_courses_subtitle') }}</p>
+      </div>
+      {% if session.user_type == 'graduate' %}
+      <a href="{{ url_for('course_new') }}" class="btn btn-primary" style="padding: 12px 24px;">{{ t('create_new_course') }}</a>
+      {% endif %}
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <form method="GET" style="margin-bottom: 28px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <!-- Search input -->
+        <div style="flex: 1; min-width: 220px; position: relative;">
+          <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none;">🔍</span>
+          <input type="text" name="q" value="{{ search }}"
+                 placeholder="{{ t('search_courses_placeholder') }}"
+                 style="width: 100%; padding: 12px 42px 12px 14px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; font-size: 14px;">
+        </div>
+
+        <!-- Level filter -->
+        <select name="level"
+                style="padding: 12px 14px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; background: white; min-width: 140px; font-size: 14px;">
+          <option value="" {% if not level_filter %}selected{% endif %}>{{ t('level_all') }}</option>
+          <option value="مبتدئ"  {% if level_filter == 'مبتدئ' %}selected{% endif %}>{{ t('level_beginner') }}</option>
+          <option value="متوسط"  {% if level_filter == 'متوسط' %}selected{% endif %}>{{ t('level_intermediate') }}</option>
+          <option value="متقدم"  {% if level_filter == 'متقدم' %}selected{% endif %}>{{ t('level_advanced') }}</option>
+        </select>
+
+        <!-- Price filter -->
+        <select name="price"
+                style="padding: 12px 14px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; background: white; min-width: 140px; font-size: 14px;">
+          <option value=""     {% if not price_filter %}selected{% endif %}>{{ t('all_prices') }}</option>
+          <option value="free" {% if price_filter == 'free' %}selected{% endif %}>{{ t('free_only') }}</option>
+          <option value="paid" {% if price_filter == 'paid' %}selected{% endif %}>{{ t('paid_only') }}</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">{{ t('search') }}</button>
+
+        {% if search or level_filter or price_filter %}
+        <a href="{{ url_for('courses_list') }}" class="btn btn-secondary" style="padding: 12px 18px; text-decoration: none;">{{ t('clear') }}</a>
+        {% endif %}
+      </div>
+
+      {% if search or level_filter or price_filter %}
+      <div style="margin-top: 10px; font-size: 13px; color: #64748B;">
+        {{ t('found_courses_prefix') }} <strong>{{ courses|length }}</strong> {{ t('found_courses_suffix') }}
+        {% if search %} {{ t('matching_query') }} "<strong>{{ search }}</strong>"{% endif %}
+        {% if level_filter %} {{ t('level_label_dash') }} <strong>{{ level_filter }}</strong>{% endif %}
+        {% if price_filter == 'free' %} — <strong>{{ t('free_label') }}</strong>{% elif price_filter == 'paid' %} — <strong>{{ t('paid_label') }}</strong>{% endif %}
+      </div>
+      {% endif %}
+    </form>
+
+    {% if courses %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+      {% for course in courses %}
+      <div class="card card-hover" style="display: flex; flex-direction: column; overflow: hidden;">
+        <div style="height: 160px; border-radius: 12px; margin-bottom: 16px; overflow: hidden; position: relative;">
+          <img src="{{ url_for('static', filename='images/' + course.image) }}"
+               style="width: 100%; height: 100%; object-fit: cover;">
+          <button onclick="toggleFav({{ course.id }}, this); event.stopPropagation();"
+                  style="position: absolute; top: 12px; left: 12px; width: 40px; height: 40px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; cursor: pointer; font-size: 20px;">
+            {% if course.id in fav_ids %}❤️{% else %}🤍{% endif %}
+          </button>
+        </div>
+        <div style="padding: 0 4px;">
+          <div style="display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;">
+            {% for tag in course.tags_list[:3] %}
+            <span style="background: #E0F2FE; color: #0891B2; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">{{ tag }}</span>
+            {% endfor %}
+          </div>
+          <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 6px; line-height: 1.4;">{{ course.title }}</h3>
+          <p style="color: #64748B; font-size: 14px; margin-bottom: 12px;">👤 {{ course.instructor }}</p>
+          <div style="display: flex; gap: 12px; font-size: 13px; color: #64748B; margin-bottom: 12px; flex-wrap: wrap;">
+            <span>⭐ {{ course.rating or '—' }}</span>
+            <span>⏱ {{ course.duration or '—' }}</span>
+            <span>📊 {{ course.level or '—' }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; border-top: 1px solid #F1F5F9;">
+            <div style="font-weight: 800; color: #0891B2; font-size: 18px;">
+              {% if course.price and course.price > 0 %}{{ course.price|int }} {{ t('sar') }}{% else %}{{ t('free') }}{% endif %}
+            </div>
+            <a href="{{ url_for('course_details', course_id=course.id) }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">{{ t('details') }}</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 16px;">📚</div>
+      <h3 style="font-weight: 700; margin-bottom: 8px;">{{ t('no_courses_available') }}</h3>
+      <p style="color: #64748B;">{{ t('check_back_soon') }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+async function toggleFav(courseId, btn) {
+  const r = await fetch('/api/favorites/' + courseId, { method: 'POST' });
+  const d = await r.json();
+  if (d.success) btn.textContent = d.favorite ? '❤️' : '🤍';
+}
+</script>
+{% endblock %}

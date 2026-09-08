@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang or 'ar' }}" dir="{{ page_dir or 'rtl' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}منطلق - منصة التعليم والتوجيه المهني{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header Navigation -->
+    {% if session.user_id %}
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-container">
+                <div class="logo-symbol">∞</div>
+                <div class="logo-text">
+                    <div class="logo-main">منطلق</div>
+                    <div class="logo-sub">Muntalaq</div>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('dashboard') }}">{{ t('dashboard') }}</a>
+                <a href="{{ url_for('courses_list') }}">{{ t('courses') }}</a>
+                <a href="{{ url_for('my_courses') }}">{{ t('my_courses') }}</a>
+                <a href="{{ url_for('graduates_list') }}">{{ t('graduates') }}</a>
+                <a href="{{ url_for('community') }}">{{ t('community') }}</a>
+                <a href="{{ url_for('recommendations') }}">{{ t('recommendations') }}</a>
+            </nav>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="{{ t('search_placeholder') }}">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            {% if session.user_type == 'graduate' %}
+            <div style="background: linear-gradient(135deg,#7C3AED,#A855F7); color:white; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap;">{{ t('role_graduate') }}</div>
+            {% elif session.user_type == 'student' %}
+            <div style="background: linear-gradient(135deg,#0891B2,#00B8DB); color:white; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap;">{{ t('role_student') }}</div>
+            {% endif %}
+
+            <div class="header-actions">
+                <button class="icon-btn" onclick="window.location.href='{{ url_for('notifications') }}'">
+                    <span>🔔</span>
+                    {% if unread_notif_count and unread_notif_count > 0 %}
+                    <span class="notification-badge">{{ unread_notif_count }}</span>
+                    {% endif %}
+                </button>
+                <button class="icon-btn" onclick="window.location.href='{{ url_for('messages') }}'">
+                    <span>💬</span>
+                </button>
+                <button class="icon-btn" onclick="window.location.href='{{ url_for('favorites') }}'">
+                    <span>❤️</span>
+                </button>
+                <button class="icon-btn primary" onclick="window.location.href='{{ url_for('profile') }}'" style="overflow:hidden; padding:0;">
+                    {% if current_user and current_user.profile_image %}
+                    <img src="{{ url_for('static', filename=current_user.profile_image) }}"
+                         style="width:100%; height:100%; object-fit:cover; border-radius:50%;" alt="me">
+                    {% else %}
+                    <span>👤</span>
+                    {% endif %}
+                </button>
+                <button class="icon-btn" onclick="window.location.href='{{ url_for('settings') }}'">
+                    <span>⚙️</span>
+                </button>
+                <a class="lang-btn" href="{{ url_for('set_language', lang='en' if current_lang == 'ar' else 'ar') }}"
+                   style="display: inline-flex; align-items: center; gap: 4px; cursor:pointer; text-decoration:none; color:inherit;"
+                   title="{{ t('lang_tooltip') }}">
+                    <span>🌐</span>
+                    <span>{{ 'EN' if current_lang == 'ar' else 'AR' }}</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    {% endif %}
+
+    <!-- Flash Messages → toast -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <script>
+            window.__flashed_messages__ = {{ messages|tojson }};
+        </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Support Chatbot -->
+    {% if session.user_id %}
+    <div class="support-chatbot" onclick="toggleChatbot()" style="position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; background: linear-gradient(135deg, #0891B2, #00B8DB); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4); z-index: 1000; transition: transform 0.3s;">
+        <span style="font-size: 24px; color: white;">🤖</span>
+    </div>
+    
+    <!-- Chatbot Window -->
+    <div id="chatbot-window" style="display: none; position: fixed; bottom: 100px; right: 24px; width: 400px; height: 600px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1001; flex-direction: column;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 20px; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: white;">{{ t('chatbot_title') }}</h3>
+                <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.9;">{{ t('chatbot_subtitle') }}</p>
+            </div>
+            <button onclick="toggleChatbot()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">×</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div id="quick-actions" style="padding: 16px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+            <div style="font-size: 12px; color: #64748B; margin-bottom: 8px; font-weight: 600;">{{ t('quick_actions_label') }}</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button onclick="quickAction('courses')" style="background: white; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-family: 'Cairo', sans-serif;">{{ t('qa_courses') }}</button>
+                <button onclick="quickAction('help')" style="background: white; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-family: 'Cairo', sans-serif;">{{ t('qa_help') }}</button>
+                <button onclick="quickAction('account')" style="background: white; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-family: 'Cairo', sans-serif;">{{ t('qa_account') }}</button>
+                <button onclick="quickAction('technical')" style="background: white; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-family: 'Cairo', sans-serif;">{{ t('qa_technical') }}</button>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chatbot-messages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <!-- Welcome message -->
+            <div class="bot-message" style="display: flex; gap: 8px; align-items: start;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; flex-shrink: 0;">🤖</div>
+                <div style="background: #F1F5F9; padding: 12px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.6; word-wrap: break-word;">
+                    {{ t('chatbot_welcome').replace('{name}', session.user_name or '')|safe }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div style="padding: 16px; border-top: 1px solid #E2E8F0; background: white; border-radius: 0 0 16px 16px;">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chatbot-input" placeholder="{{ t('chatbot_placeholder') }}" style="flex: 1; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: 'Cairo', sans-serif;" onkeypress="if(event.key==='Enter') sendChatMessage()" />
+                <button onclick="sendChatMessage()" style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-family: 'Cairo', sans-serif; font-weight: 600; font-size: 14px;">{{ t('chatbot_send') }}</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        setTimeout(function() {
+            const flashMessages = document.querySelector('.flash-messages');
+            if (flashMessages) {
+                flashMessages.style.opacity = '0';
+                flashMessages.style.transition = 'opacity 0.5s';
+                setTimeout(() => flashMessages.remove(), 500);
+            }
+        }, 5000);
+
+        let chatbotOpen = false;
+        let chatHistory = [];
+
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot-window');
+            chatbotOpen = !chatbotOpen;
+            chatbot.style.display = chatbotOpen ? 'flex' : 'none';
+            
+            if (chatbotOpen) {
+                document.getElementById('chatbot-input').focus();
+            }
+        }
+
+        function quickAction(action) {
+            const messages = {
+                'courses': {{ t('qa_msg_courses')|tojson }},
+                'help': {{ t('qa_msg_help')|tojson }},
+                'account': {{ t('qa_msg_account')|tojson }},
+                'technical': {{ t('qa_msg_technical')|tojson }}
+            };
+
+            document.getElementById('chatbot-input').value = messages[action];
+            sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            const typingId = addTypingIndicator();
+            
+            try {
+                // Send to AI
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                document.getElementById(typingId).remove();
+                
+                if (data.success) {
+                    addChatMessage(data.response, 'bot');
+
+                    // Update history
+                    chatHistory.push({role: 'user', content: message});
+                    chatHistory.push({role: 'assistant', content: data.response});
+
+                    // Keep only last 10 messages
+                    if (chatHistory.length > 20) {
+                        chatHistory = chatHistory.slice(-20);
+                    }
+                } else {
+                    addChatMessage({{ t('chatbot_error')|tojson }}, 'bot');
+                }
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                addChatMessage({{ t('chatbot_offline')|tojson }}, 'bot');
+            }
+        }
+
+        function addChatMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatbot-messages');
+            
+            // Format text with line breaks
+            const formattedText = text.replace(/\n/g, '<br>');
+            
+            if (sender === 'user') {
+                messagesContainer.innerHTML += `
+                    <div style="display: flex; justify-content: flex-end;">
+                        <div style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 12px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.6; word-wrap: break-word; white-space: pre-wrap;">
+                            ${formattedText}
+                        </div>
+                    </div>
+                `;
+            } else {
+                messagesContainer.innerHTML += `
+                    <div class="bot-message" style="display: flex; gap: 8px; align-items: start;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; flex-shrink: 0;">🤖</div>
+                        <div style="background: #F1F5F9; padding: 12px; border-radius: 12px; max-width: 75%; font-size: 14px; line-height: 1.6; word-wrap: break-word; white-space: pre-wrap;">
+                            ${formattedText}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chatbot-messages');
+            const typingId = 'typing-' + Date.now();
+            
+            messagesContainer.innerHTML += `
+                <div id="${typingId}" class="bot-message" style="display: flex; gap: 8px; align-items: start;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; flex-shrink: 0;">🤖</div>
+                    <div style="background: #F1F5F9; padding: 12px; border-radius: 12px; font-size: 14px;">
+                        <span style="animation: blink 1.4s infinite;">●</span>
+                        <span style="animation: blink 1.4s infinite 0.2s;">●</span>
+                        <span style="animation: blink 1.4s infinite 0.4s;">●</span>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return typingId;
+        }
+        
+        // Add blink animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes blink {
+                0%, 60%, 100% { opacity: 0.3; }
+                30% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    {% block extra_js %}{% endblock %}
+
+    <!-- Toast notification container -->
+    <div id="toastContainer" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: 420px; width: 90%;"></div>
+
+    <script>
+        (function () {
+            const container = document.getElementById('toastContainer');
+
+            function showToast(title, message, kind) {
+                if (!container) return;
+                const colors = {
+                    success: { bg: '#D1FAE5', border: '#6EE7B7', text: '#065F46', icon: '✅' },
+                    error:   { bg: '#FEE2E2', border: '#FCA5A5', text: '#991B1B', icon: '⚠️' },
+                    info:    { bg: '#E0F2FE', border: '#7DD3FC', text: '#075985', icon: '🔔' }
+                };
+                const c = colors[kind] || colors.info;
+                const t = document.createElement('div');
+                t.style.cssText = `pointer-events: auto; background:${c.bg}; border:1px solid ${c.border}; color:${c.text};
+                    padding: 14px 18px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                    display:flex; gap:12px; align-items:flex-start; font-family: Cairo, sans-serif;
+                    transform: translateY(-12px); opacity: 0; transition: all .25s ease;`;
+                t.innerHTML = `
+                    <div style="font-size:20px; line-height:1;">${c.icon}</div>
+                    <div style="flex:1; min-width:0;">
+                        ${title ? `<div style="font-weight:700; margin-bottom:4px;">${title}</div>` : ''}
+                        <div style="font-size:14px; line-height:1.5;">${message}</div>
+                    </div>
+                    <button aria-label="{{ t('close') }}" style="background:transparent; border:none; color:inherit; cursor:pointer; font-size:16px; opacity:.6; padding:0 4px;">✕</button>
+                `;
+                container.appendChild(t);
+                requestAnimationFrame(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; });
+                const close = () => {
+                    t.style.transform = 'translateY(-12px)'; t.style.opacity = '0';
+                    setTimeout(() => t.remove(), 250);
+                };
+                t.querySelector('button').addEventListener('click', close);
+                setTimeout(close, 5000);
+            }
+
+            window.muntalaqToast = showToast;
+
+            // Show flashed messages (set on the body via the flash partial below)
+            const flashed = window.__flashed_messages__ || [];
+            flashed.forEach(([cat, msg]) => showToast('', msg, cat === 'error' ? 'error' : (cat === 'info' ? 'info' : 'success')));
+
+            // Poll for new notifications every 20s and toast new ones
+            {% if session.get('user_id') %}
+            let lastSeenId = parseInt(localStorage.getItem('muntalaq_last_notif_id') || '0', 10);
+            async function pollNotifications() {
+                try {
+                    const r = await fetch('/api/notifications/recent', { credentials: 'same-origin' });
+                    if (!r.ok) return;
+                    const d = await r.json();
+                    if (!d.success || !Array.isArray(d.notifications)) return;
+                    const fresh = d.notifications.filter(n => n.id > lastSeenId);
+                    if (fresh.length) {
+                        // Show in chronological order, newest last
+                        fresh.slice().reverse().forEach(n => showToast(n.title, n.message, 'info'));
+                        lastSeenId = Math.max(...d.notifications.map(n => n.id), lastSeenId);
+                        localStorage.setItem('muntalaq_last_notif_id', String(lastSeenId));
+                    } else if (d.notifications.length && lastSeenId === 0) {
+                        // First load: don't toast historical, just record latest
+                        lastSeenId = Math.max(...d.notifications.map(n => n.id));
+                        localStorage.setItem('muntalaq_last_notif_id', String(lastSeenId));
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            pollNotifications();
+            setInterval(pollNotifications, 20000);
+            {% endif %}
+        })();
+    </script>
+</body>
+</html>

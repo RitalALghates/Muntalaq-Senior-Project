@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_course_new_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 800px;">
+    <a href="{{ url_for('my_courses') }}" style="color: #0891B2; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 16px;">{{ t('back_to_my_courses') }}</a>
+
+    <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 8px;">{{ t('create_course_title') }}</h1>
+    <p style="color: #64748B; margin-bottom: 32px;">{{ t('create_course_subtitle') }}</p>
+
+    <form method="POST" class="card" style="padding: 32px;">
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('course_title_label') }}</label>
+        <input type="text" name="title" required class="form-input"
+               style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;"
+               placeholder="{{ t('course_title_label') }}">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('course_description_label') }}</label>
+        <textarea name="description" required rows="5" class="form-input"
+                  style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; resize: vertical;"
+                  placeholder="{{ t('course_description_label') }}"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('price_sar_label') }}</label>
+          <input type="number" name="price" min="0" step="0.01" value="0" class="form-input"
+                 style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;">
+          <p style="font-size: 12px; color: #64748B; margin-top: 4px;">{{ t('leave_zero_free') }}</p>
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('duration_label') }}</label>
+          <input type="text" name="duration" class="form-input" placeholder="{{ t('duration_input_placeholder') }}"
+                 style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('level_label') }}</label>
+          <select name="level" class="form-input"
+                  style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; background: white;">
+            <option value="مبتدئ">{{ t('level_beginner') }}</option>
+            <option value="متوسط" selected>{{ t('level_intermediate') }}</option>
+            <option value="متقدم">{{ t('level_advanced') }}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('field_label') }}</label>
+          <input type="text" name="field" class="form-input" placeholder="{{ t('field_label') }}"
+                 style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('tags_label') }}</label>
+        <input type="text" name="tags" class="form-input" placeholder="{{ t('tags_placeholder') }}"
+               style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;">
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">{{ t('course_image_label') }}</label>
+        <select name="image" class="form-input"
+                style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; background: white;">
+          <option value="course1.jpg">{{ t('image_business') }}</option>
+          <option value="course2.jpg">{{ t('image_data') }}</option>
+          <option value="course3.jpg">{{ t('image_web') }}</option>
+          <option value="course4.jpg">{{ t('image_design') }}</option>
+          <option value="course5.jpg">{{ t('image_ai') }}</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1; padding: 14px; font-size: 16px;">
+          {{ t('publish_course') }}
+        </button>
+        <a href="{{ url_for('my_courses') }}" class="btn btn-secondary" style="flex: 1; padding: 14px; text-align: center; font-size: 16px;">
+          {{ t('cancel') }}
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

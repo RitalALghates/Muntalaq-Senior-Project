@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_course_lessons_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 900px;">
+    <a href="{{ url_for('my_courses') }}" style="color:#0891B2; text-decoration:none; font-weight:600;">{{ t('back_to_my_courses') }}</a>
+
+    <h1 style="font-size: 32px; font-weight: 800; margin-top: 12px;">{{ t('manage_course_content_title') }}</h1>
+    <p style="color:#64748B; margin-bottom: 24px;">{{ course.title }}</p>
+
+    <!-- Add new lesson -->
+    <div class="card" style="margin-bottom: 24px;">
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">{{ t('add_new_lesson') }}</h2>
+      <form method="POST">
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-weight:600; margin-bottom:6px;">{{ t('lesson_title_label') }}</label>
+          <input type="text" name="title" required class="form-input"
+                 style="width:100%; padding:12px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif;"
+                 placeholder="{{ t('lesson_title_placeholder') }}">
+        </div>
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-bottom: 14px;">
+          <div>
+            <label style="display:block; font-weight:600; margin-bottom:6px;">{{ t('youtube_link_label') }}</label>
+            <input type="url" name="video_url" class="form-input"
+                   style="width:100%; padding:12px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif;"
+                   placeholder="{{ t('youtube_link_placeholder') }}">
+            <div style="font-size:12px; color:#64748B; margin-top:4px;">{{ t('youtube_link_hint') }}</div>
+          </div>
+          <div>
+            <label style="display:block; font-weight:600; margin-bottom:6px;">{{ t('duration_label') }}</label>
+            <input type="text" name="duration" class="form-input"
+                   style="width:100%; padding:12px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif;"
+                   placeholder="{{ t('duration_placeholder') }}">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">{{ t('add_lesson_btn') }}</button>
+      </form>
+    </div>
+
+    <!-- Existing lessons -->
+    <div class="card">
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">{{ t('existing_lessons') }} ({{ lessons|length }})</h2>
+      {% if lessons %}
+      <div style="display: grid; gap: 10px;">
+        {% for lesson in lessons %}
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px; border:1px solid #E2E8F0; border-radius:10px; background:#F8FAFC;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="width:32px; height:32px; border-radius:50%; background:#0891B2; color:white; display:flex; align-items:center; justify-content:center; font-weight:700;">
+              {{ loop.index }}
+            </div>
+            <div>
+              <div style="font-weight:600;">{{ lesson.title }}</div>
+              <div style="font-size:12px; color:#64748B;">
+                🎥 {{ lesson.duration or '—' }}
+                {% if lesson.video_url %} · 🔗 <a href="{{ lesson.video_url }}" target="_blank" style="color:#0891B2;">{{ t('preview') }}</a>{% endif %}
+              </div>
+            </div>
+          </div>
+          <form method="POST" action="{{ url_for('lesson_delete', course_id=course.id, lesson_id=lesson.id) }}"
+                onsubmit="return confirm('{{ t('confirm_delete_lesson') }}');">
+            <button type="submit" style="background:#FEE2E2; color:#DC2626; border:none; padding:8px 14px; border-radius:8px; font-weight:600; cursor:pointer; font-family:Cairo,sans-serif;">
+              {{ t('delete') }}
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center; color:#64748B; padding:24px;">
+        <div style="font-size:48px; margin-bottom:8px;">🎬</div>
+        <p>{{ t('no_lessons_yet_admin') }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

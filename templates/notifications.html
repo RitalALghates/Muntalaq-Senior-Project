@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_notifications_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <h1 style="font-size: 36px; font-weight: 800;">{{ t('notifications_title') }}</h1>
+            <button class="btn btn-secondary" id="markAllReadBtn" onclick="markAllRead()">{{ t('mark_all_read') }}</button>
+        </div>
+        <div class="notifications-list">
+            {% if notifications %}
+            {% for notif in notifications %}
+            {% set icon = '💬' if notif.notif_type == 'message' else ('⭐' if notif.notif_type == 'rating' else ('📚' if notif.notif_type == 'course' else '🔔')) %}
+            <div class="notification-item {% if not notif.is_read %}unread{% endif %}"
+                 {% if notif.link %}onclick="window.location.href='{{ notif.link }}'" style="cursor:pointer;"{% endif %}>
+                <div class="notification-icon icon-{{ notif.notif_type }}">{{ icon }}</div>
+                <div class="notification-content">
+                    <div class="notification-title">{{ notif.title }}</div>
+                    <div class="notification-message">{{ notif.message }}</div>
+                    <div class="notification-time">{{ notif.created_at }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="text-align: center; padding: 48px; color: #64748B;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🔔</div>
+                <p>{{ t('no_notifications_yet') }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+const UPDATING_MSG = "{{ t('updating') }}";
+const DONE_MSG = "{{ t('done_check') }}";
+const MARK_ALL_MSG = "{{ t('mark_all_read') }}";
+
+async function markAllRead() {
+  const btn = document.getElementById('markAllReadBtn');
+  btn.disabled = true;
+  btn.textContent = UPDATING_MSG;
+  try {
+    const r = await fetch('/api/notifications/mark-all-read', {method: 'POST'});
+    const d = await r.json();
+    if (d.success) {
+      document.querySelectorAll('.notification-item.unread').forEach(el => el.classList.remove('unread'));
+      btn.textContent = DONE_MSG;
+      setTimeout(() => location.reload(), 600);
+    } else {
+      btn.textContent = MARK_ALL_MSG;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    btn.textContent = MARK_ALL_MSG;
+    btn.disabled = false;
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_favorites_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('favorites_title') }}</h1>
+    <p style="color: #64748B; margin-bottom: 32px;">{{ t('favorites_subtitle') }}</p>
+
+    {% if courses %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+      {% for course in courses %}
+      <div class="card">
+        <div style="height: 160px; border-radius: 12px; margin-bottom: 16px; overflow: hidden; position: relative;">
+          <img src="{{ url_for('static', filename='images/' + (course.image or 'course1.jpg')) }}"
+               style="width: 100%; height: 100%; object-fit: cover;">
+          <button onclick="removeFav({{ course.id }}, this)"
+                  style="position: absolute; top: 12px; left: 12px; width: 40px; height: 40px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; cursor: pointer; font-size: 20px;">❤️</button>
+        </div>
+        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 6px;">{{ course.title }}</h3>
+        <p style="color: #64748B; font-size: 14px; margin-bottom: 12px;">👤 {{ course.instructor }}</p>
+        <div style="display: flex; gap: 12px; font-size: 13px; color: #64748B; margin-bottom: 12px;">
+          <span>⭐ {{ course.rating or '—' }}</span>
+          <span>⏱ {{ course.duration or '—' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #F1F5F9;">
+          <div style="font-weight: 800; color: #0891B2; font-size: 18px;">
+            {% if course.price and course.price > 0 %}{{ course.price|int }} {{ t('sar') }}{% else %}{{ t('free') }}{% endif %}
+          </div>
+          <a href="{{ url_for('course_details', course_id=course.id) }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">{{ t('details') }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 16px;">💔</div>
+      <h3 style="font-weight: 700; margin-bottom: 8px;">{{ t('favorites_empty') }}</h3>
+      <p style="color: #64748B; margin-bottom: 24px;">{{ t('add_courses_to_favorites') }}</p>
+      <a href="{{ url_for('courses_list') }}" class="btn btn-primary">{{ t('courses') }}</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+async function removeFav(courseId, btn) {
+  const r = await fetch('/api/favorites/' + courseId, { method: 'POST' });
+  const d = await r.json();
+  if (d.success && !d.favorite) {
+    btn.closest('.card').style.transition = 'opacity 0.3s';
+    btn.closest('.card').style.opacity = '0';
+    setTimeout(() => location.reload(), 300);
+  }
+}
+</script>
+{% endblock %}

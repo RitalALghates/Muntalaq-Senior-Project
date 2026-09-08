@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_recommendations_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="text-align: center; margin-bottom: 48px">
+      <h1 style="font-size: 48px; font-weight: 800; color: #0F172A; margin-bottom: 16px;">{{ t('page_recommendations_title') }}</h1>
+      <p style="font-size: 18px; color: #64748B">{{ t('recommendations_subtitle') }}</p>
+      <button onclick="analyzeProfile()" style="margin-top: 20px; background: linear-gradient(135deg, #8B5CF6, #A78BFA); color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: Cairo, sans-serif; font-size: 15px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+        {{ t('analyze_my_profile') }}
+      </button>
+    </div>
+
+    <!-- Profile Analysis Result -->
+    <div id="profile-analysis" style="display: none; margin-bottom: 32px;">
+      <div class="card" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA); color: white; padding: 32px;">
+        <h2 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 16px;">{{ t('profile_analysis') }}</h2>
+        <div id="analysis-content"></div>
+      </div>
+    </div>
+
+    <!-- AI Conversation Section -->
+    <div id="ai-conversation-section" class="card" style="margin-bottom: 40px; padding: 32px">
+      <div style="text-align: center; margin-bottom: 24px">
+        <h2 style="font-size: 28px; font-weight: 700; color: #0891B2; margin-bottom: 8px;">{{ t('ai_assistant') }}</h2>
+        <p style="color: #64748B">{{ t('ai_help_choose') }}</p>
+      </div>
+
+      <!-- Chat Interface -->
+      <div id="chat-container" style="background: #F8FAFC; border-radius: 16px; padding: 24px; margin-bottom: 24px; max-height: 500px; overflow-y: auto;">
+        <div id="chat-messages">
+          <div class="ai-message" style="margin-bottom: 16px">
+            <div style="display: flex; gap: 12px; align-items: start">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">AI</div>
+              <div style="background: white; padding: 16px; border-radius: 12px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <p style="margin: 0; color: #0F172A; line-height: 1.6" id="ai-welcome-text"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div style="display: flex; gap: 12px">
+          <input type="text" id="user-input" placeholder="{{ t('message_placeholder_here') }}"
+            style="flex: 1; padding: 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 16px; font-family: 'Cairo', sans-serif;" />
+          <button id="send-btn" onclick="sendMessage()"
+            style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; cursor: pointer; font-family: 'Cairo', sans-serif;">
+            {{ t('send') }}
+          </button>
+        </div>
+
+        <!-- Quick Start Button -->
+        <div style="text-align: center; margin-top: 16px">
+          <button onclick="quickAnalyze()"
+            style="background: transparent; border: 2px solid #0891B2; color: #0891B2; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Cairo', sans-serif;">
+            {{ t('quick_analyze_profile') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Generated Advice Section (Hidden initially) -->
+      <div id="ai-advice-section" style="display: none; margin-bottom: 40px">
+        <div class="card" style="background: linear-gradient(135deg, #0891B2 0%, #00B8DB 100%); color: white; padding: 32px; margin-bottom: 24px;">
+          <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: white;">{{ t('personalized_advice') }}</h3>
+          <div id="personalized-message" style="font-size: 18px; margin-bottom: 20px; line-height: 1.8"></div>
+          <div id="advice-list" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;"></div>
+        </div>
+        <div class="card" style="padding: 24px; margin-bottom: 24px">
+          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #0891B2;">{{ t('suggested_path') }}</h3>
+          <p id="learning-path" style="color: #0F172A; line-height: 1.8; font-size: 16px"></p>
+        </div>
+      </div>
+
+      <!-- Recommended Courses Section -->
+      <div id="courses-section">
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center;">{{ t('recommended_courses') }}</h2>
+        <div class="course-grid" id="recommended-courses">
+          {% if recommendations %}
+          {% for rec in recommendations %}
+          <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+              <img src="{{ url_for('static', filename='images/' + rec.image) }}" style="width: 100%; height: 100%; object-fit: cover" />
+              <div class="course-badge {% if rec.type == 'الدورات' %}badge-course{% elif rec.type == 'التوجيه' %}badge-mentoring{% else %}badge-tip{% endif %}">{{ rec.type }}</div>
+              <div class="course-instructor">
+                <div class="instructor-avatar">{{ rec.instructor[0] }}</div>
+                <div>
+                  <div style="font-weight: 600; color: #ffffff">{{ rec.instructor }}</div>
+                  <div style="font-size: 12px; color: rgba(255,255,255,0.8)">{{ rec.field }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="course-info">
+              <h3 class="course-title">{{ rec.title }}</h3>
+              <div class="course-rating">
+                <span style="color: #F59E0B">⭐</span>
+                <span class="rating-value">{{ rec.rating }}</span>
+                <span class="rating-reviews">({{ rec.reviews }} {{ t('reviews_count_suffix') }})</span>
+              </div>
+              <div class="course-meta">
+                <div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>{{ rec.duration }}</span></div>
+                <div class="meta-item"><div class="meta-icon icon-level">📊</div><span>{{ rec.level }}</span></div>
+              </div>
+              <div class="course-tags">{% for tag in rec.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</div>
+              <div class="course-footer">
+                <button class="btn btn-primary">{{ t('view_details_btn') }}</button>
+                <div class="course-price {% if rec.price == 0 %}price-free{% endif %}">
+                  <span class="price-value">{% if rec.price == 0 %}{{ t('free') }}{% else %}{{ rec.price }}{% endif %}</span>
+                  {% if rec.price > 0 %}<span class="price-currency">{{ t('sar') }}</span>{% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const THINKING_MSG = "{{ t('thinking') }}";
+    const SORRY_MSG = "{{ t('sorry_error') }}";
+    const GET_RECS_BTN = "{{ t('get_recommendations_now') }}";
+    const ERROR_GENERATING = "{{ t('error_generating') }}";
+    const ANALYZING_MSG = "{{ t('analyzing_profile') }}";
+    const ANALYZING_SHORT = "{{ t('analyzing_profile_short') }}";
+    const STRENGTHS_LABEL = "{{ t('strengths') }}";
+    const REC_FIELDS_LABEL = "{{ t('recommended_fields') }}";
+    const SKILLS_LABEL = "{{ t('suggested_skills') }}";
+    const CAREER_LABEL = "{{ t('career_path') }}";
+    const FAILED_MSG = "{{ t('analysis_failed') }}";
+    const ERROR_MSG = "{{ t('analysis_error') }}";
+
+    document.getElementById('ai-welcome-text').textContent = "{{ t('ai_welcome_msg') }}";
+
+    let conversationHistory = [];
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+      addMessage(message, "user");
+      input.value = "";
+      const loadingId = addMessage(THINKING_MSG, "ai", true);
+      try {
+        const response = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, history: conversationHistory }),
+        });
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+        if (data.success) {
+          addMessage(data.response, "ai");
+          conversationHistory.push({ role: "user", content: message });
+          conversationHistory.push({ role: "assistant", content: data.response });
+          checkForRecommendations(message);
+        }
+      } catch (error) {
+        document.getElementById(loadingId).remove();
+        addMessage(SORRY_MSG, "ai");
+      }
+    }
+
+    function addMessage(text, sender, isLoading = false) {
+      const chatMessages = document.getElementById("chat-messages");
+      const messageId = "msg-" + Date.now();
+      if (sender === "user") {
+        chatMessages.innerHTML += `<div class="user-message" style="margin-bottom:16px;display:flex;justify-content:flex-end;"><div style="background:linear-gradient(135deg,#0891B2,#00B8DB);color:white;padding:16px;border-radius:12px;max-width:70%;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><p style="margin:0;line-height:1.6;">${text}</p></div></div>`;
+      } else {
+        chatMessages.innerHTML += `<div id="${messageId}" class="ai-message" style="margin-bottom:16px;"><div style="display:flex;gap:12px;align-items:start;"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0891B2,#00B8DB);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">AI</div><div style="background:white;padding:16px;border-radius:12px;flex:1;box-shadow:0 2px 4px rgba(0,0,0,0.05);"><p style="margin:0;color:#0F172A;line-height:1.6;">${text}</p></div></div></div>`;
+      }
+      document.getElementById("chat-container").scrollTop = document.getElementById("chat-container").scrollHeight;
+      return messageId;
+    }
+
+    function checkForRecommendations(message) {
+      if (conversationHistory.length >= 6) {
+        setTimeout(() => {
+          document.getElementById("chat-messages").innerHTML += `<div style="text-align:center;margin:24px 0;"><button onclick="generateRecommendations()" style="background:linear-gradient(135deg,#10B981,#34D399);color:white;border:none;padding:16px 32px;border-radius:12px;font-weight:600;cursor:pointer;font-family:'Cairo',sans-serif;box-shadow:0 4px 6px rgba(16,185,129,0.3);">${GET_RECS_BTN}</button></div>`;
+        }, 1000);
+      }
+    }
+
+    async function generateRecommendations() {
+      const conversationText = conversationHistory.map(m => m.content).join(" ");
+      document.getElementById("ai-conversation-section").style.opacity = "0.5";
+      try {
+        const response = await fetch("/api/ai-recommendations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ major: extractMajor(conversationText), interests: conversationText, career_goals: conversationText, skill_level: extractSkillLevel(conversationText) }),
+        });
+        const data = await response.json();
+        document.getElementById("ai-conversation-section").style.opacity = "1";
+        if (data.success) displayRecommendations(data);
+      } catch (error) {
+        document.getElementById("ai-conversation-section").style.opacity = "1";
+        alert(ERROR_GENERATING);
+      }
+    }
+
+    function displayRecommendations(data) {
+      const adviceSection = document.getElementById("ai-advice-section");
+      adviceSection.style.display = "block";
+      document.getElementById("personalized-message").textContent = data.personalized_message;
+      document.getElementById("advice-list").innerHTML = data.advice.map((advice, index) => `<div style="display:flex;gap:12px;margin-bottom:12px;align-items:start;"><div style="background:rgba(255,255,255,0.2);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-weight:700;">${index + 1}</div><p style="margin:0;color:white;line-height:1.6;">${advice}</p></div>`).join("");
+      document.getElementById("learning-path").textContent = data.learning_path;
+      adviceSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function quickAnalyze() {
+      alert(ANALYZING_MSG);
+      setTimeout(() => { generateRecommendations(); }, 1500);
+    }
+
+    function extractMajor(text) {
+      const majors = ["هندسة", "علوم حاسب", "إدارة", "تصميم", "برمجة"];
+      for (let major of majors) { if (text.includes(major)) return major; }
+      return "غير محدد";
+    }
+
+    function extractSkillLevel(text) {
+      if (text.includes("مبتدئ") || text.includes("البداية")) return "مبتدئ";
+      if (text.includes("متقدم") || text.includes("خبرة")) return "متقدم";
+      return "متوسط";
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", function(e) { if (e.key === "Enter") sendMessage(); });
+
+    async function analyzeProfile() {
+      const section = document.getElementById('profile-analysis');
+      const content = document.getElementById('analysis-content');
+      section.style.display = 'block';
+      content.innerHTML = `<div style="text-align:center;padding:20px;"><div style="display:inline-block;width:40px;height:40px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 1s linear infinite;"></div><p style="margin-top:12px;">${ANALYZING_SHORT}</p></div>`;
+      section.scrollIntoView({ behavior: 'smooth' });
+      try {
+        const r = await fetch('/api/analyze-profile', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) {
+          const a = d.analysis;
+          content.innerHTML = `
+            <div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:12px;margin-bottom:16px;backdrop-filter:blur(8px);">
+              <p style="line-height:1.8;color:white;font-size:15px;">${a.summary || ''}</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px;">
+              <div style="background:rgba(255,255,255,0.15);padding:16px;border-radius:12px;">
+                <div style="font-weight:700;margin-bottom:8px;color:white;">${STRENGTHS_LABEL}</div>
+                <ul style="margin:0;padding-inline-start:20px;color:white;font-size:14px;line-height:1.8;">${(a.strengths || []).map(s => '<li>' + s + '</li>').join('')}</ul>
+              </div>
+              <div style="background:rgba(255,255,255,0.15);padding:16px;border-radius:12px;">
+                <div style="font-weight:700;margin-bottom:8px;color:white;">${REC_FIELDS_LABEL}</div>
+                <ul style="margin:0;padding-inline-start:20px;color:white;font-size:14px;line-height:1.8;">${(a.recommended_fields || []).map(s => '<li>' + s + '</li>').join('')}</ul>
+              </div>
+              <div style="background:rgba(255,255,255,0.15);padding:16px;border-radius:12px;">
+                <div style="font-weight:700;margin-bottom:8px;color:white;">${SKILLS_LABEL}</div>
+                <ul style="margin:0;padding-inline-start:20px;color:white;font-size:14px;line-height:1.8;">${(a.suggested_skills || []).map(s => '<li>' + s + '</li>').join('')}</ul>
+              </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.2);padding:16px;border-radius:12px;">
+              <div style="font-weight:700;margin-bottom:8px;color:white;">${CAREER_LABEL}</div>
+              <p style="margin:0;color:white;font-size:14px;line-height:1.7;">${a.career_path || ''}</p>
+            </div>`;
+        } else {
+          content.innerHTML = `<p>${FAILED_MSG}</p>`;
+        }
+      } catch (e) {
+        content.innerHTML = `<p>${ERROR_MSG}</p>`;
+      }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+  </script>
+
+{% endblock %}

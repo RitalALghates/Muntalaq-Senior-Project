@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang or 'ar' }}" dir="{{ page_dir or 'rtl' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('page_login_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #F8FAFC 0%, #E0F2FE 100%);">
+    <div style="max-width: 480px; width: 90%;">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="display: inline-flex; align-items: center; gap: 10px;">
+                <div style="font-size: 48px; font-weight: 900; color: #0891B2;">∞</div>
+                <div>
+                    <div style="font-size: 28px; font-weight: 800; color: #0891B2;">منطلق</div>
+                    <div style="font-size: 18px; font-weight: 600; color: rgba(8, 145, 178, 0.8);">Muntalaq</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="card" style="padding: 40px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <h1 style="font-size: 32px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">{{ t('login_title') }}</h1>
+                <p style="color: #64748B;">{{ t('login_welcome_back') }}</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div style="margin-bottom: 20px;">
+                {% for category, message in messages %}
+                {% if category == 'error' %}
+                <div style="padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5;">{{ message }}</div>
+                {% else %}
+                <div style="padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; background: #D1FAE5; color: #059669; border: 1px solid #6EE7B7;">{{ message }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label class="form-label">{{ t('login_as') }}</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <label style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                            <input type="radio" name="login_as" value="student" checked>
+                            <span>{{ t('login_as_student') }}</span>
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                            <input type="radio" name="login_as" value="graduate">
+                            <span>{{ t('login_as_graduate') }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ t('email_field_label') }}</label>
+                    <input type="email" name="email" class="form-input" required placeholder="example@email.com" autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ t('password_field_label') }}</label>
+                    <input type="password" name="password" class="form-input" required placeholder="{{ t('password_field_label') }}">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="remember">
+                        <span style="font-size: 14px; color: #64748B;">{{ t('remember_me') }}</span>
+                    </label>
+                    <a href="{{ url_for('forgot_password') }}" style="font-size: 14px; color: #0891B2; text-decoration: none;">{{ t('forgot_password_q') }}</a>
+                </div>
+
+                <button type="submit" class="btn btn-gradient btn-lg" style="width: 100%;">{{ t('login_btn') }}</button>
+            </form>
+
+            <!-- Create Account CTA -->
+            <div style="margin-top: 28px; padding: 20px; background: linear-gradient(135deg, #F0F9FF, #E0F2FE); border-radius: 12px; border: 1px solid #BAE6FD; text-align: center;">
+                <p style="font-weight: 700; color: #0F172A; margin-bottom: 6px; font-size: 16px;">{{ t('no_account') }}</p>
+                <p style="color: #64748B; font-size: 14px; margin-bottom: 14px;">{{ t('join_thousands') }}</p>
+                <a href="{{ url_for('account_selection') }}"
+                   style="display: inline-block; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 12px 32px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">
+                    {{ t('create_account_btn') }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Info link -->
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('landing') }}" style="color: #94A3B8; text-decoration: none; font-size: 13px;">
+                {{ t('learn_about_platform') }}
+            </a>
+        </div>
+    </div>
+</body>
+</html>

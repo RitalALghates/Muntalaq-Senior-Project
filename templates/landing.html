@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+{% block title %}منطلق - ابدأ رحلتك التعليمية والمهنية{% endblock %}
+{% block content %}
+
+<!-- Hero Section with Real Background Image -->
+<div class="hero-section" style="background-image: url('{{ url_for('static', filename='images/hero-bg.jpg') }}'); position: relative; min-height: 600px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6);"></div>
+    <div style="position: relative; z-index: 10; text-align: center; padding: 40px; max-width: 900px;">
+        <h1 style="font-size: 56px; font-weight: 900; color: #FFFFFF; margin-bottom: 20px; text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">منطلق... منصتك للإرشاد<br>والتطوير المهني</h1>
+        <p style="font-size: 22px; color: #FFFFFF; margin-bottom: 40px; text-shadow: 1px 1px 4px rgba(0,0,0,0.3); line-height: 1.6;">منصة تربط بين الطلاب والخريجين لتبادل الخبرات والمعرفة في رحلة النجاح المهني</p>
+        <button class="btn btn-gradient btn-lg" style="padding: 18px 48px; font-size: 20px; box-shadow: 0 8px 24px rgba(8, 145, 178, 0.4);" onclick="window.location.href='{{ url_for('account_selection') }}'">ابدأ رحلتك</button>
+    </div>
+</div>
+
+<!-- Feature Cards Section -->
+<div class="container" style="margin: 60px auto;">
+    <h2 style="text-align: center; font-size: 36px; font-weight: 800; margin-bottom: 48px;">كيف يمكننا مساعدتك؟</h2>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+        <!-- Feature 1 -->
+        <div class="card card-hover" style="text-align: center; padding: 32px;">
+            <div style="width: 60px; height: 60px; background: rgba(8, 145, 178, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+                📊
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">تحليل وتقارير</h3>
+            <p style="font-size: 14px; color: #64748B;">تحليل شامل لأدائك ونموك المهني مع تقارير مفصلة</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="card card-hover" style="text-align: center; padding: 32px;">
+            <div style="width: 60px; height: 60px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+                🎯
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">دروس الاستكشاف</h3>
+            <p style="font-size: 14px; color: #64748B;">اكتشف مجالات جديدة ووسع آفاقك المهنية</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="card card-hover" style="text-align: center; padding: 32px;">
+            <div style="width: 60px; height: 60px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+                📚
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">دورات متنوعة</h3>
+            <p style="font-size: 14px; color: #64748B;">مكتبة واسعة من الدورات في مختلف المجالات</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="card card-hover" style="text-align: center; padding: 32px;">
+            <div style="width: 60px; height: 60px; background: rgba(8, 145, 178, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+                🤝
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">خدمات ربط</h3>
+            <p style="font-size: 14px; color: #64748B;">تواصل مع خريجين ناجحين في مجالك</p>
+        </div>
+    </div>
+</div>
+
+<!-- GPA Calculator Section -->
+<div class="gpa-calculator" id="gpa-calculator">
+    <div style="text-align: center; margin-bottom: 32px;">
+        <h2 style="font-size: 36px; font-weight: 800; color: #0F172A; margin-bottom: 8px;"> احسب المعدل التراكمي</h2>
+        <p style="font-size: 16px; color: #64748B;">احسب معدلك الفصلي والتراكمي بسهولة من خلال إدخال المواد ومساعداتها ودرجاتك</p>
+    </div>
+
+    <form id="gpa-form">
+        <!-- Previous GPA Section -->
+        <div style="background: #E0F2FE; border: 2px solid #0891B2; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+            <h3 style="font-size: 20px; font-weight: 700; color: #0891B2; margin-bottom: 16px; text-align: right;">* المعدل التراكمي السابق (اختياري)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">المعدل التراكمي السابق</label>
+                    <input type="number" step="0.01" min="0" max="5" class="form-input" id="prev-gpa" placeholder="مثال: 4.50">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">عدد الساعات المجتازة</label>
+                    <input type="number" min="0" class="form-input" id="prev-credits" placeholder="مثال: 60">
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Subject Button -->
+        <div style="text-align: left; margin-bottom: 16px;">
+            <button type="button" class="btn" style="background: #0891B2; color: white; padding: 10px 24px; border-radius: 20px;" onclick="addCourse()">+ إضافة مادة</button>
+        </div>
+
+        <!-- Current Semester Section -->
+        <div style="background: white; border: 2px solid #E2E8F0; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+            <h3 style="font-size: 20px; font-weight: 700; color: #0891B2; margin-bottom: 16px; text-align: right;">* المواد الدراسية للفصل الحالي</h3>
+            
+            <!-- Table Header -->
+            <div style="display: grid; grid-template-columns: 50px 2.5fr 1fr 1fr 60px; gap: 12px; margin-bottom: 12px; padding: 12px; background: #F8FAFC; border-radius: 8px; font-weight: 600; color: #64748B; font-size: 14px;">
+                <div style="text-align: center;">#</div>
+                <div style="text-align: right;">اسم المادة</div>
+                <div style="text-align: center;">الساعات</div>
+                <div style="text-align: center;">الدرجة</div>
+                <div></div>
+            </div>
+
+            <!-- Course Rows Container -->
+            <div id="courses-container">
+                <div class="course-row" style="display: grid; grid-template-columns: 50px 2.5fr 1fr 1fr 60px; gap: 12px; margin-bottom: 12px; align-items: center;">
+                    <div style="text-align: center; width: 40px; height: 40px; background: #E0F2FE; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0891B2;">1</div>
+                    <input type="text" class="form-input" placeholder="مثال: حساب التفاضل والتكامل" required style="margin: 0;">
+                    <input type="number" class="form-input" placeholder="3" min="1" max="6" required style="margin: 0; text-align: center;">
+                    <select class="form-input form-select" required style="margin: 0;">
+                        <option value="">اختر</option>
+                        <option value="5.0">A+ (5.0)</option>
+                        <option value="4.75">A (4.75)</option>
+                        <option value="4.5">B+ (4.5)</option>
+                        <option value="4.0">B (4.0)</option>
+                        <option value="3.5">C+ (3.5)</option>
+                        <option value="3.0">C (3.0)</option>
+                        <option value="2.5">D+ (2.5)</option>
+                        <option value="2.0">D (2.0)</option>
+                        <option value="1.0">F (1.0)</option>
+                    </select>
+                    <button type="button" class="btn" onclick="this.parentElement.remove(); updateCourseNumbers();" style="padding: 8px; background: #FEE2E2; color: #DC2626; width: 40px; height: 40px; border-radius: 8px;">🗑️</button>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-gradient btn-lg" style="width: 100%;">احسب المعدل</button>
+    </form>
+
+    <!-- GPA Results -->
+    <div class="gpa-results" id="results" style="display: none; margin-top: 32px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div style="background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%); padding: 32px; border-radius: 16px; text-align: center; color: white; box-shadow: 0 8px 24px rgba(8, 145, 178, 0.3);">
+                <div style="font-size: 16px; margin-bottom: 12px; opacity: 0.9;">المعدل التراكمي</div>
+                <div style="font-size: 72px; font-weight: 900; margin-bottom: 8px;" id="cumulative-gpa">0.00</div>
+                <div style="font-size: 14px; opacity: 0.8;">من 5.00</div>
+            </div>
+            <div style="background: #E0F2FE; padding: 32px; border-radius: 16px; text-align: center; border: 2px solid #0891B2;">
+                <div style="font-size: 16px; margin-bottom: 12px; color: #64748B;">المعدل الفصلي</div>
+                <div style="font-size: 72px; font-weight: 900; margin-bottom: 8px; color: #0891B2;" id="semester-gpa">0.00</div>
+                <div style="font-size: 14px; color: #64748B;">من 5.00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Scale -->
+    <div style="margin-top: 32px; padding: 24px; background: #F8FAFC; border-radius: 16px;">
+        <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center;">مقياس الدرجات</h4>
+        <div style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 12px; text-align: center;">
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">A+</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">5</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">A</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">4.75</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">B+</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">4.5</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">B</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">4</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">C+</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">3.5</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">C</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">3</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">D+</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">2.5</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">D</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">2</div></div>
+            <div style="padding: 12px; background: white; border-radius: 8px; border: 2px solid #E2E8F0;"><div style="font-weight: 700; color: #0891B2; font-size: 18px;">F</div><div style="font-size: 14px; color: #64748B; margin-top: 4px;">1</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommended Courses Section -->
+<div class="container" style="margin: 80px auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <div>
+            <h2 style="font-size: 36px; font-weight: 800; color: #0F172A;">موصى به لك</h2>
+            <p style="font-size: 16px; color: #64748B;">دورات مخصصة بناءً على اهتماماتك وأهدافك المهنية</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn btn-secondary" style="padding: 10px 16px;">الكل</button>
+            <button class="btn btn-primary" style="padding: 10px 16px;">دورات</button>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <!-- Course Card 1 -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/course1.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-course" style="position: absolute; top: 16px; left: 16px;">دورة</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">م</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">محمد الأحمد</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">استشاري استراتيجية واعمال</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">أساسيات تصميم واجهة و تجربة المستخدم</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.8</span><span class="rating-reviews">(234 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>6 أسابيع</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span>متقدم</span></div></div>
+                <div class="course-tags"><span class="tag">استثمار</span><span class="tag">أعمال</span><span class="tag">مالية</span></div>
+                <div class="course-footer"><button class="btn btn-primary">ابدأ الآن</button><div class="course-price"><span class="price-value">299</span><span class="price-currency">ريال</span></div></div>
+            </div>
+        </div>
+
+        <!-- Course Card 2 -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/course2.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-mentoring" style="position: absolute; top: 16px; left: 16px;">توجيه</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">ل</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">ليلى السعيد</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">مهندسة برمجيات في أمازون</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">توجيه مهني فردي في علوم البيانات</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.9</span><span class="rating-reviews">(156 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>ساعة واحدة</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span>جميع المستويات</span></div></div>
+                <div class="course-tags"><span class="tag">برمجة</span><span class="tag">توجيه</span><span class="tag">مسار مهني</span></div>
+                <div class="course-footer"><button class="btn btn-primary">احجز جلسة</button><div class="course-price price-free"><span class="price-value">مجاني</span></div></div>
+            </div>
+        </div>
+
+        <!-- Course Card 3 -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/course3.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-tip" style="position: absolute; top: 16px; left: 16px;">نصيحة</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">أ</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">أحمد خالد</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">خبير تحليل بيانات</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">أنماط React المتقدمة وأفضل الممارسات</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.7</span><span class="rating-reviews">(89 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>4 أسابيع</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span>متوسط</span></div></div>
+                <div class="course-tags"><span class="tag">React</span><span class="tag">تطوير</span><span class="tag">JavaScript</span></div>
+                <div class="course-footer"><button class="btn btn-primary">ابدأ الآن</button><div class="course-price"><span class="price-value">200</span><span class="price-currency">ريال</span></div></div>
+            </div>
+        </div>
+
+        <!-- Course Card 4 -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/course4.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-course" style="position: absolute; top: 16px; left: 16px;">دورة</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">س</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">سارة محمود</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">مصممة UI/UX</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">تطوير تطبيقات الجوال باستخدام Flutter</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.6</span><span class="rating-reviews">(312 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>8 أسابيع</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span>متقدم</span></div></div>
+                <div class="course-tags"><span class="tag">تصميم</span><span class="tag">UI/UX</span><span class="tag">أنظمة</span></div>
+                <div class="course-footer"><button class="btn btn-primary">ابدأ الآن</button><div class="course-price"><span class="price-value">349</span><span class="price-currency">ريال</span></div></div>
+            </div>
+        </div>
+
+        <!-- Course Card 5 -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/course5.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-mentoring" style="position: absolute; top: 16px; left: 16px;">توجيه</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">ف</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">فهد العتيبي</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">مستشار الاستثمار</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">البدء بتعلم الآلة</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.8</span><span class="rating-reviews">(178 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>ساعتان</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span">متوسط</span></div></div>
+                <div class="course-tags"><span class="tag">استراتيجية</span><span class="tag">إدارة</span><span class="tag">قيادة</span></div>
+                <div class="course-footer"><button class="btn btn-primary">ابدأ الآن</button><div class="course-price"><span class="price-value">349</span><span class="price-currency">ريال</span></div></div>
+            </div>
+        </div>
+
+        <!-- Course Card 6 - Business Meeting Image -->
+        <div class="course-card card-hover">
+            <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <img src="{{ url_for('static', filename='images/hero-bg.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="course-badge badge-course" style="position: absolute; top: 16px; left: 16px;">دورة</div>
+                <div class="course-instructor" style="position: absolute; bottom: 16px; left: 16px; right: 16px;">
+                    <div class="instructor-avatar">ن</div>
+                    <div><div style="font-weight: 600; color: #FFFFFF; font-size: 14px;">نورة الغامدي</div><div style="font-size: 12px; color: rgba(255,255,255,0.9);">مديرة مشاريع معتمدة</div></div>
+                </div>
+            </div>
+            <div class="course-info">
+                <h3 class="course-title">استراتيجية الأعمال والقيادة</h3>
+                <div class="course-rating"><span style="color: #F59E0B;">⭐</span><span class="rating-value">4.9</span><span class="rating-reviews">(245 تقييم)</span></div>
+                <div class="course-meta"><div class="meta-item"><div class="meta-icon icon-duration">⏱️</div><span>10 أسابيع</span></div><div class="meta-item"><div class="meta-icon icon-level">📊</div><span>متقدم</span></div></div>
+                <div class="course-tags"><span class="tag">إدارة</span><span class="tag">مشاريع</span><span class="tag">قيادة</span></div>
+                <div class="course-footer"><button class="btn btn-primary">ابدأ الآن</button><div class="course-price"><span class="price-value">450</span><span class="price-currency">ريال</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <button class="btn btn-secondary btn-lg" onclick="window.location.href='{{ url_for('recommendations') }}'">عرض المزيد من التوصيات</button>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div style="background: linear-gradient(135deg, #101828 0%, #1E2939 100%); padding: 80px 0; margin-top: 80px;">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 36px; font-weight: 800; color: #FFFFFF; margin-bottom: 48px;">منطلق بالأرقام</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;">
+            <div style="text-align: center;">
+                <div style="font-size: 60px; font-weight: 700; color: #0891B2; margin-bottom: 12px;">+5000</div>
+                <div style="font-size: 20px; color: #D1D5DC;">طالب نشط</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 60px; font-weight: 700; color: #0891B2; margin-bottom: 12px;">+200</div>
+                <div style="font-size: 20px; color: #D1D5DC;">خريج متعاون</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 60px; font-weight: 700; color: #0891B2; margin-bottom: 12px;">+50</div>
+                <div style="font-size: 20px; color: #D1D5DC;">دورة متاحة</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About Section with FAQ Accordion -->
+<div class="container" style="margin: 80px auto;">
+    <h2 style="text-align: center; font-size: 36px; font-weight: 800; margin-bottom: 48px;">عن المنصة</h2>
+    <div style="max-width: 900px; margin: 0 auto;">
+        <!-- FAQ Item 1 -->
+        <div class="faq-item" style="background: white; border: 2px solid #E2E8F0; border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s;">
+            <div class="faq-question" onclick="toggleFAQ(this)" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">ما هي منصة منطلق؟</h3>
+                <div class="faq-icon" style="font-size: 24px; color: #0891B2; transition: transform 0.3s;">▼</div>
+            </div>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                <div style="padding: 0 24px 24px 24px;">
+                    <p style="color: #64748B; line-height: 1.8; margin: 0;">منطلق هي منصة تعليمية ومهنية تربط بين الطلاب والخريجين الناجحين، توفر دورات تدريبية متنوعة، توجيه مهني فردي، وأدوات مثل حاسبة المعدل التراكمي لدعم رحلتك الأكاديمية والمهنية.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="faq-item" style="background: white; border: 2px solid #E2E8F0; border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s;">
+            <div class="faq-question" onclick="toggleFAQ(this)" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">كيف تعمل منصة منطلق؟</h3>
+                <div class="faq-icon" style="font-size: 24px; color: #0891B2; transition: transform 0.3s;">▼</div>
+            </div>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                <div style="padding: 0 24px 24px 24px;">
+                    <p style="color: #64748B; line-height: 1.8; margin: 0;">يمكنك التسجيل كطالب أو كخريج، استكشاف الدورات المتاحة، حجز جلسات توجيه مهني، المشاركة في المجتمع، وتتبع تقدمك الأكاديمي من خلال لوحة التحكم الشخصية.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="faq-item" style="background: white; border: 2px solid #E2E8F0; border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s;">
+            <div class="faq-question" onclick="toggleFAQ(this)" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">من هم المستشارون في منطلق؟</h3>
+                <div class="faq-icon" style="font-size: 24px; color: #0891B2; transition: transform 0.3s;">▼</div>
+            </div>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                <div style="padding: 0 24px 24px 24px;">
+                    <p style="color: #64748B; line-height: 1.8; margin: 0;">المستشارون هم خريجون ناجحون في مختلف المجالات المهنية، يمتلكون خبرات عملية واسعة ومستعدون لمشاركة معرفتهم ودعم الطلاب في رحلتهم المهنية.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="faq-item" style="background: white; border: 2px solid #E2E8F0; border-radius: 16px; overflow: hidden; transition: all 0.3s;">
+            <div class="faq-question" onclick="toggleFAQ(this)" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">لمن تناسب منصة منطلق؟</h3>
+                <div class="faq-icon" style="font-size: 24px; color: #0891B2; transition: transform 0.3s;">▼</div>
+            </div>
+            <div class="faq-answer" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                <div style="padding: 0 24px 24px 24px;">
+                    <p style="color: #64748B; line-height: 1.8; margin: 0;">تناسب منطلق الطلاب الذين يبحثون عن التوجيه والتطوير المهني، والخريجين الذين يرغبون في مشاركة خبراتهم، وأي شخص يسعى لتطوير مهاراته في بيئة تعليمية داعمة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="container" style="margin: 80px auto;">
+    <h2 style="text-align: center; font-size: 36px; font-weight: 800; margin-bottom: 48px;">آراء عملائنا</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+        <!-- Testimonial 1 -->
+        <div class="card" style="padding: 32px; text-align: center;">
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #0891B2 0%, #00B8DB 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">👨</div>
+            <h4 style="font-weight: 700; margin-bottom: 8px;">مؤمن المرزوقي</h4>
+            <div style="color: #F59E0B; margin-bottom: 12px;">⭐⭐⭐⭐⭐</div>
+            <p style="color: #64748B; font-size: 14px; line-height: 1.6;">منصة رائعة ساعدتني في تطوير مهاراتي والتواصل مع خبراء في مجالي</p>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="card" style="padding: 32px; text-align: center;">
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">👩</div>
+            <h4 style="font-weight: 700; margin-bottom: 8px;">سارة الأحمدي</h4>
+            <div style="color: #F59E0B; margin-bottom: 12px;">⭐⭐⭐⭐⭐</div>
+            <p style="color: #64748B; font-size: 14px; line-height: 1.6;">تجربة مميزة! الدورات عالية الجودة والتوجيه المهني احترافي جداً</p>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="card" style="padding: 32px; text-align: center;">
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #EC4899 0%, #F472B6 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">👨</div>
+            <h4 style="font-weight: 700; margin-bottom: 8px;">خالد السعيد</h4>
+            <div style="color: #F59E0B; margin-bottom: 12px;">⭐⭐⭐⭐⭐</div>
+            <p style="color: #64748B; font-size: 14px; line-height: 1.6;">أفضل منصة للتطوير المهني! نصائح عملية ومفيدة جداً من خريجين محترفين</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div style="background: linear-gradient(135deg, #0891B2 0%, #00B8DB 100%); padding: 80px 0; margin-top: 80px;">
+    <div class="container text-center">
+        <h2 style="font-size: 48px; font-weight: 800; color: #FFFFFF; margin-bottom: 24px;">ابدأ رحلتك اليوم</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.9); margin-bottom: 40px;">انضم إلى آلاف الطلاب والخريجين على منطلق</p>
+        <button class="btn btn-lg" style="background: #FFFFFF; color: #0891B2; padding: 16px 48px; font-size: 18px;" onclick="window.location.href='{{ url_for('account_selection') }}'">ابدأ مجاناً الآن</button>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer style="background: #0F172A; color: #FFFFFF; padding: 60px 0 24px;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <div style="font-size: 30px; font-weight: 900; color: #0891B2;">∞</div>
+                    <div>
+                        <div style="font-size: 20px; font-weight: 800; color: #0891B2;">منطلق</div>
+                        <div style="font-size: 14px; color: rgba(139, 92, 246, 0.8);">Muntalaq</div>
+                    </div>
+                </div>
+                <p style="color: #94A3B8; line-height: 1.6; margin-bottom: 16px;">منصة تربط الطلاب بالخريجين للتوجيه المهني وتطوير المهارات</p>
+                <div style="display: flex; gap: 12px;">
+                    <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.background='rgba(8,145,178,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">📘</a>
+                    <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.background='rgba(8,145,178,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">🐦</a>
+                    <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.background='rgba(8,145,178,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">📸</a>
+                    <a href="#" style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;" onmouseover="this.style.background='rgba(8,145,178,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">💼</a>
+                </div>
+            </div>
+            <div>
+                <h4 style="font-weight: 700; margin-bottom: 16px;">روابط سريعة</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">تواصل معنا</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">من نحن</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">الدورات</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">الموجهون</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-weight: 700; margin-bottom: 16px;">السياسة والخصوصية</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">الشروط والأحكام</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">سياسة الخصوصية</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">سياسة الاسترجاع</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-weight: 700; margin-bottom: 16px;">روابط مهمة</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">مركز المساعدة</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">الأسئلة الشائعة</a></li>
+                    <li style="margin-bottom: 12px;"><a href="#" style="color: #94A3B8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#0891B2'" onmouseout="this.style.color='#94A3B8'">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; text-align: center; color: #64748B;">
+            <p>© 2024 منطلق. جميع الحقوق محفوظة | تم التطوير بواسطة فريق منطلق</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+let courseCounter = 1;
+
+function updateCourseNumbers() {
+    const courseRows = document.querySelectorAll('.course-row');
+    courseRows.forEach((row, index) => {
+        const numberCircle = row.querySelector('div:first-child');
+        if (numberCircle) {
+            numberCircle.textContent = (index + 1);
+        }
+    });
+    courseCounter = courseRows.length;
+}
+
+function addCourse() {
+    courseCounter++;
+    const container = document.getElementById('courses-container');
+    const courseRow = document.createElement('div');
+    courseRow.className = 'course-row';
+    courseRow.style.cssText = 'display: grid; grid-template-columns: 50px 2.5fr 1fr 1fr 60px; gap: 12px; margin-bottom: 12px; align-items: center;';
+    courseRow.innerHTML = `
+        <div style="text-align: center; width: 40px; height: 40px; background: #E0F2FE; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0891B2;">${courseCounter}</div>
+        <input type="text" class="form-input" placeholder="مثال: حساب التفاضل والتكامل" required style="margin: 0;">
+        <input type="number" class="form-input" placeholder="3" min="1" max="6" required style="margin: 0; text-align: center;">
+        <select class="form-input form-select" required style="margin: 0;">
+            <option value="">اختر</option>
+            <option value="5.0">A+ (5.0)</option>
+            <option value="4.75">A (4.75)</option>
+            <option value="4.5">B+ (4.5)</option>
+            <option value="4.0">B (4.0)</option>
+            <option value="3.5">C+ (3.5)</option>
+            <option value="3.0">C (3.0)</option>
+            <option value="2.5">D+ (2.5)</option>
+            <option value="2.0">D (2.0)</option>
+            <option value="1.0">F (1.0)</option>
+        </select>
+        <button type="button" class="btn" onclick="this.parentElement.remove(); updateCourseNumbers();" style="padding: 8px; background: #FEE2E2; color: #DC2626; width: 40px; height: 40px; border-radius: 8px;">🗑️</button>
+    `;
+    container.appendChild(courseRow);
+}
+
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    const answer = element.nextElementSibling;
+    const icon = element.querySelector('.faq-icon');
+    const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+    
+    // Close all other FAQ items
+    document.querySelectorAll('.faq-answer').forEach(item => {
+        if (item !== answer) {
+            item.style.maxHeight = '0';
+            item.previousElementSibling.querySelector('.faq-icon').style.transform = 'rotate(0deg)';
+            item.parentElement.style.borderColor = '#E2E8F0';
+        }
+    });
+    
+    // Toggle current item
+    if (isOpen) {
+        answer.style.maxHeight = '0';
+        icon.style.transform = 'rotate(0deg)';
+        faqItem.style.borderColor = '#E2E8F0';
+    } else {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+        faqItem.style.borderColor = '#0891B2';
+    }
+}
+
+document.getElementById('gpa-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const prevGPA = parseFloat(document.getElementById('prev-gpa').value) || 0;
+    const prevCredits = parseFloat(document.getElementById('prev-credits').value) || 0;
+    
+    const courseRows = document.querySelectorAll('.course-row');
+    let totalPoints = 0;
+    let totalCredits = 0;
+    
+    courseRows.forEach(row => {
+        const inputs = row.querySelectorAll('input, select');
+        const credits = parseFloat(inputs[1].value);
+        const grade = parseFloat(inputs[2].value);
+        if (grade && credits) {
+            totalPoints += grade * credits;
+            totalCredits += credits;
+        }
+    });
+    
+    const semesterGPA = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
+    const cumulativeGPA = (prevCredits + totalCredits) > 0 
+        ? ((prevGPA * prevCredits + totalPoints) / (prevCredits + totalCredits)) 
+        : semesterGPA;
+    
+    document.getElementById('cumulative-gpa').textContent = cumulativeGPA.toFixed(2);
+    document.getElementById('semester-gpa').textContent = semesterGPA.toFixed(2);
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({behavior: 'smooth', block: 'center'});
+});
+</script>
+{% endblock %}

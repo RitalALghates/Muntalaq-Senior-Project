@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="container" style="max-width: 1400px;">
+    <a href="{{ url_for('course_details', course_id=course.id) }}"
+       style="color: #0891B2; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 16px;">{{ t('back_to_course_details') }}</a>
+
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px;">
+      <!-- Left: video player -->
+      <div>
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div id="videoArea"
+               style="width: 100%; height: 420px; background: linear-gradient(135deg, #0F172A, #1E293B);
+                      display: flex; flex-direction: column; align-items: center; justify-content: center;
+                      color: white; gap: 16px;">
+            <div style="font-size: 80px; opacity: 0.8;">▶️</div>
+            <div style="font-size: 18px; font-weight: 600; opacity: 0.9;">{{ course.current_video }}</div>
+          </div>
+          <div id="currentTitle" style="display:none;">{{ course.current_video }}</div>
+          <div style="padding: 20px 24px;">
+            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 16px;">{{ course.title }}</h2>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <span style="font-size: 14px; color: #64748B; font-weight: 600;">{{ t('progress_label') }}</span>
+              <div style="flex: 1; height: 10px; background: #E2E8F0; border-radius: 99px; overflow: hidden;">
+                <div id="progressBar" style="height: 100%; background: linear-gradient(90deg, #0891B2, #00B8DB); border-radius: 99px; width: {{ course.progress }}%;"></div>
+              </div>
+              <span id="progressText" style="font-size: 14px; font-weight: 700; color: #0891B2; white-space: nowrap;">{{ course.progress }}%</span>
+            </div>
+            <p style="font-size: 13px; color: #94A3B8;">{{ t('instructor_dot') }} {{ course.instructor }} · {{ course.lessons_done }} / {{ course.lessons_total }} {{ t('lesson_completed_count') }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: lesson list -->
+      <div>
+        <div class="card" style="max-height: 600px; overflow-y: auto;">
+          <h3 style="font-weight: 700; font-size: 20px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #F1F5F9;">
+            {{ t('course_outline') }}
+          </h3>
+
+          {% if course.lessons %}
+            {% for lesson in course.lessons %}
+            <div class="lesson-row" id="row-{{ lesson.id }}" data-lesson-id="{{ lesson.id }}"
+                 data-url="{{ lesson.video_url or '' }}" data-title="{{ lesson.title|e }}"
+                 onclick="playLesson({{ lesson.id }}, '{{ lesson.title|e }}', '{{ lesson.video_url or '' }}')"
+                 style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+                        {% if lesson.completed %}background: #D1FAE5; border: 1px solid #A7F3D0;{% else %}background: #F8FAFC; border: 1px solid transparent;{% endif %}">
+              <span class="lesson-status" style="font-size:16px; flex-shrink:0;">{% if lesson.completed %}✅{% else %}▶️{% endif %}</span>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:600; font-size:13px; color:#0F172A; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ lesson.title }}</div>
+                <div style="font-size:11px; color:#64748B; margin-top:2px;">⏱ {{ lesson.duration or '—' }}</div>
+              </div>
+              <button onclick="event.stopPropagation(); toggleComplete({{ lesson.id }}, this)"
+                      title="{{ t('toggle_complete_title') }}"
+                      style="background:white; border:1px solid #CBD5E1; padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer; font-family:Cairo,sans-serif; flex-shrink:0;"
+                      data-complete-label="{{ t('mark_complete') }}" data-cancel-label="{{ t('cancel_short') }}">
+                {% if lesson.completed %}{{ t('cancel_short') }}{% else %}{{ t('mark_complete') }}{% endif %}
+              </button>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="text-align:center; color:#94A3B8; padding:24px;">
+              <div style="font-size:32px; margin-bottom:6px;">🎬</div>
+              <p>{{ t('no_lessons_added') }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const NO_VIDEO_MSG = "{{ t('no_video_for_lesson') }}";
+let activeId = null;
+
+function playLesson(id, title, url) {
+  document.querySelectorAll('.lesson-row').forEach(r => r.style.outline = 'none');
+  const activeRow = document.getElementById('row-' + id);
+  if (activeRow) activeRow.style.outline = '2px solid #0891B2';
+  activeId = id;
+  const titleEl = document.getElementById('currentTitle');
+  if (titleEl) titleEl.textContent = title;
+  const area = document.getElementById('videoArea');
+  if (!area) return;
+  if (url) {
+    const sep = url.indexOf('?') === -1 ? '?' : '&';
+    const src = url + sep + 'autoplay=1&rel=0';
+    area.innerHTML = '<iframe src="' + src + '" style="width:100%; height:100%; border:0;" allowfullscreen allow="autoplay; encrypted-media; fullscreen"></iframe>';
+    area.style.background = '#000';
+  } else {
+    area.innerHTML = '<div style="text-align:center; color:#94A3B8; padding:40px;"><div style="font-size:48px; margin-bottom:12px;">🎬</div><p>' + title + '</p><p>' + NO_VIDEO_MSG + '</p></div>';
+    area.style.background = 'linear-gradient(135deg, #0F172A, #1E293B)';
+  }
+  history.replaceState(null, '', window.location.pathname + '?lesson=' + id);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  const targetId = params.get('lesson') ? parseInt(params.get('lesson')) : null;
+  const rows = document.querySelectorAll('.lesson-row');
+  if (!rows.length) return;
+  let targetRow = targetId ? document.getElementById('row-' + targetId) : null;
+  const rowToPlay = targetRow || rows[0];
+  playLesson(parseInt(rowToPlay.dataset.lessonId), rowToPlay.dataset.title, rowToPlay.dataset.url);
+});
+
+async function toggleComplete(lessonId, btn) {
+  btn.disabled = true;
+  const cancelLabel = btn.dataset.cancelLabel;
+  const completeLabel = btn.dataset.completeLabel;
+  try {
+    const r = await fetch('/api/lessons/' + lessonId + '/complete', { method: 'POST' });
+    const d = await r.json();
+    if (d.success) {
+      const row = document.querySelector('.lesson-row[data-lesson-id="' + lessonId + '"]');
+      if (d.completed) {
+        row.style.background = '#D1FAE5';
+        row.style.border = '1px solid #A7F3D0';
+        row.querySelector('.lesson-status').textContent = '✅';
+        btn.textContent = cancelLabel;
+      } else {
+        row.style.background = '#F8FAFC';
+        row.style.border = '1px solid transparent';
+        row.querySelector('.lesson-status').textContent = '▶️';
+        btn.textContent = completeLabel;
+      }
+      document.getElementById('progressBar').style.width = d.progress + '%';
+      document.getElementById('progressText').textContent = d.progress + '%';
+    }
+  } catch (e) {}
+  btn.disabled = false;
+}
+</script>
+{% endblock %}

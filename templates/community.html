@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_community_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('community_title') }}</h1>
+        <p style="color: #64748B;">{{ t('community_subtitle') }}</p>
+      </div>
+      <a href="{{ url_for('community_posts') }}" class="btn btn-primary" style="padding: 12px 24px;">{{ t('view_posts') }}</a>
+    </div>
+
+    <!-- Community Stats (FR10.8) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div class="card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
+        <div style="font-size: 32px; font-weight: 800; color: #0891B2;">{{ stats.total_posts }}</div>
+        <div style="color: #64748B; font-size: 14px;">{{ t('posts_label') }}</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">💬</div>
+        <div style="font-size: 32px; font-weight: 800; color: #0891B2;">{{ stats.total_comments }}</div>
+        <div style="color: #64748B; font-size: 14px;">{{ t('comments_label') }}</div>
+      </div>
+      <div class="card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">👍</div>
+        <div style="font-size: 32px; font-weight: 800; color: #0891B2;">{{ stats.total_likes }}</div>
+        <div style="color: #64748B; font-size: 14px;">{{ t('likes_label') }}</div>
+      </div>
+    </div>
+
+    <!-- Trending hashtags (FR10.9) -->
+    {% if trending %}
+    <div class="card" style="margin-bottom: 32px;">
+      <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">{{ t('trending_topics') }}</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        {% for t in trending %}
+        <a href="{{ url_for('community_posts', q=t.tag) }}"
+           style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 600; font-size: 14px;">
+          #{{ t.tag }} <span style="opacity: 0.7;">({{ t.count }})</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Groups list (FR10.6, FR10.7) -->
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">{{ t('available_groups') }}</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+      {% for group in groups %}
+      <div class="card" style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px;">{{ group.icon }}</div>
+          <div style="font-size: 13px; color: #64748B;">👥 {{ group.members }} {{ t('member_unit') }}</div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">{{ group.name }}</h3>
+        <p style="color: #64748B; font-size: 14px; margin-bottom: 16px; min-height: 42px;">{{ group.description }}</p>
+        {% if group.joined %}
+        <a href="{{ url_for('group_chat', group_id=group.id) }}"
+           style="display:block; width:100%; padding:10px; border-radius:10px; font-weight:600; text-align:center; text-decoration:none; box-sizing:border-box;
+                  background:linear-gradient(135deg,#0891B2,#00B8DB); color:white; margin-bottom:8px;">
+          {{ t('open_chat') }}
+        </a>
+        <form method="POST" action="{{ url_for('group_join', group_id=group.id) }}"
+              onsubmit="return confirm('{{ t('leave_group_confirm') }}');">
+          <button type="submit"
+                  style="width: 100%; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: Cairo, sans-serif; border: none; background:#D1FAE5; color:#065F46;">
+            {{ t('member_click_to_leave') }}
+          </button>
+        </form>
+        {% else %}
+        <form method="POST" action="{{ url_for('group_join', group_id=group.id) }}">
+          <button type="submit"
+                  style="width: 100%; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: Cairo, sans-serif; border: none; background:linear-gradient(135deg,#0891B2,#00B8DB); color:white;">
+            {{ t('join_group') }}
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}{{ t('settings') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block extra_css %}
+<style>
+  .settings-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .settings-option:last-child { border-bottom: none; }
+  .option-info h4 { font-weight: 700; margin-bottom: 4px; }
+  .option-info p { color: #64748B; font-size: 14px; margin: 0; }
+
+  /* Working toggle switch */
+  .toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    background: #CBD5E1;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.active {
+    background: #0891B2;
+  }
+  .toggle-slider {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(-24px);
+  }
+  html[dir="ltr"] .toggle-slider {
+    right: auto;
+    left: 3px;
+  }
+  html[dir="ltr"] .toggle-switch.active .toggle-slider {
+    transform: translateX(24px);
+  }
+
+  .settings-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #0F172A;
+  }
+  .lang-choice {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .lang-pill {
+    background: #F1F5F9;
+    color: #334155;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .lang-pill:hover { background: #E2E8F0; }
+  .lang-pill.active {
+    background: linear-gradient(135deg, #0891B2, #00B8DB);
+    color: white;
+    border-color: #0891B2;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 800px;">
+    <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('settings_title') }}</h1>
+    <p style="color: #64748B; margin-bottom: 32px;">{{ t('settings_subtitle') }}</p>
+
+    <!-- Account section -->
+    <div class="settings-section">
+      <h2 class="section-title">{{ t('account_section') }}</h2>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('email_label') }}</h4>
+          <p>{{ session.user_email }}</p>
+        </div>
+      </div>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('password_label') }}</h4>
+          <p>{{ t('password_hint') }}</p>
+        </div>
+        <a href="{{ url_for('forgot_password') }}" class="btn btn-secondary" style="text-decoration: none; padding: 8px 18px;">{{ t('change') }}</a>
+      </div>
+    </div>
+
+    <!-- Notifications section (FR15.3) -->
+    <div class="settings-section">
+      <h2 class="section-title">{{ t('notifications_section') }}</h2>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('email_notifications') }}</h4>
+          <p>{{ t('email_notifications_hint') }}</p>
+        </div>
+        <div class="toggle-switch {% if user.email_notifications %}active{% endif %}"
+             data-field="email_notifications" onclick="toggleSetting(this)">
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('app_notifications') }}</h4>
+          <p>{{ t('app_notifications_hint') }}</p>
+        </div>
+        <div class="toggle-switch {% if user.app_notifications %}active{% endif %}"
+             data-field="app_notifications" onclick="toggleSetting(this)">
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy section -->
+    <div class="settings-section">
+      <h2 class="section-title">{{ t('privacy_section') }}</h2>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('profile_visibility') }}</h4>
+          <p>{{ t('profile_visibility_hint') }}</p>
+        </div>
+        <div class="toggle-switch {% if user.profile_public %}active{% endif %}"
+             data-field="profile_public" onclick="toggleSetting(this)">
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language section (FR15.2) -->
+    <div class="settings-section">
+      <h2 class="section-title">{{ t('language_section') }}</h2>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('app_language') }}</h4>
+          <p>{{ t('app_language_hint') }}</p>
+        </div>
+        <div class="lang-choice">
+          <a href="{{ url_for('set_language', lang='ar') }}"
+             class="lang-pill {% if current_lang == 'ar' %}active{% endif %}">🇸🇦 {{ t('arabic') }}</a>
+          <a href="{{ url_for('set_language', lang='en') }}"
+             class="lang-pill {% if current_lang == 'en' %}active{% endif %}">🇬🇧 {{ t('english') }}</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session section (FR15.4) -->
+    <div class="settings-section">
+      <h2 class="section-title">{{ t('session_section') }}</h2>
+      <div class="settings-option">
+        <div class="option-info">
+          <h4>{{ t('logout') }}</h4>
+          <p>{{ t('logout_hint') }}</p>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="text-decoration: none; padding: 8px 18px;">{{ t('logout') }}</a>
+      </div>
+    </div>
+
+    <!-- Toast feedback -->
+    <div id="settings-toast" style="display: none; position: fixed; bottom: 24px; {% if current_lang == 'en' %}right: 24px;{% else %}left: 24px;{% endif %} background: #10B981; color: white; padding: 14px 24px; border-radius: 10px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 2000;">
+      ✓ <span id="toast-text">{{ t('setting_saved') }}</span>
+    </div>
+  </div>
+</div>
+
+<script>
+async function toggleSetting(el) {
+  const field = el.dataset.field;
+  const nowActive = !el.classList.contains('active');
+
+  // Optimistic UI update
+  el.classList.toggle('active');
+
+  try {
+    const r = await fetch('/api/settings/toggle', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({field: field, value: nowActive})
+    });
+    const d = await r.json();
+    if (!d.success) {
+      // Revert on failure
+      el.classList.toggle('active');
+      showToast({{ t('save_failed')|tojson }}, '#EF4444');
+    } else {
+      showToast(nowActive ? {{ t('enabled')|tojson }} : {{ t('disabled')|tojson }}, '#10B981');
+    }
+  } catch (e) {
+    el.classList.toggle('active');
+    showToast({{ t('connection_failed')|tojson }}, '#EF4444');
+  }
+}
+
+function showToast(text, color) {
+  const toast = document.getElementById('settings-toast');
+  document.getElementById('toast-text').textContent = text;
+  toast.style.background = color || '#10B981';
+  toast.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => {
+    toast.style.display = 'none';
+  }, 2200);
+}
+</script>
+{% endblock %}

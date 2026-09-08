@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_recommendations_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="text-align: center; margin-bottom: 48px">
+      <h1 style="font-size: 48px; font-weight: 800; color: #0F172A; margin-bottom: 16px;">{{ t('page_recommendations_title') }}</h1>
+      <p style="font-size: 18px; color: #64748B">{{ t('recommendations_subtitle') }}</p>
+    </div>
+    <div class="course-grid">
+      {% for rec in recommendations %}
+      <div class="course-card card-hover">
+        <div style="position: relative; height: 224px; border-radius: 16px 16px 0 0; overflow: hidden;">
+          <img src="{{ url_for('static', filename='images/' + rec.image) }}" style="width: 100%; height: 100%; object-fit: cover" />
+          <div class="course-badge {% if rec.type == 'الدورات' %}badge-course{% elif rec.type == 'التوجيه' %}badge-mentoring{% else %}badge-tip{% endif %}">
+            {{ rec.type }}
+          </div>
+          <div class="course-instructor">
+            <div class="instructor-avatar">{{ rec.instructor[0] }}</div>
+            <div>
+              <div style="font-weight: 600; color: #ffffff">{{ rec.instructor }}</div>
+              <div style="font-size: 12px; color: rgba(255,255,255,0.8)">{{ rec.field }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="course-info">
+          <h3 class="course-title">{{ rec.title }}</h3>
+          <div class="course-rating">
+            <span style="color: #F59E0B">⭐</span>
+            <span class="rating-value">{{ rec.rating }}</span>
+            <span class="rating-reviews">({{ rec.reviews }} {{ t('reviews_count_suffix') }})</span>
+          </div>
+          <div class="course-meta">
+            <div class="meta-item">
+              <div class="meta-icon icon-duration">⏱️</div>
+              <span>{{ rec.duration }}</span>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon icon-level">📊</div>
+              <span>{{ rec.level }}</span>
+            </div>
+          </div>
+          <div class="course-tags">
+            {% for tag in rec.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+          </div>
+          <div class="course-footer">
+            <button class="btn btn-primary">{{ t('view_details_btn') }}</button>
+            <div class="course-price {% if rec.price == 0 %}price-free{% endif %}">
+              <span class="price-value">{% if rec.price == 0 %}{{ t('free') }}{% else %}{{ rec.price }}{% endif %}</span>
+              {% if rec.price > 0 %}<span class="price-currency">{{ t('sar') }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

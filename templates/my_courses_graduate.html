@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_my_courses_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('my_courses_graduate_title') }}</h1>
+        <p style="color: #64748B;">{{ t('my_courses_graduate_subtitle') }}</p>
+      </div>
+      <a href="{{ url_for('course_new') }}" class="btn btn-primary" style="padding: 12px 24px;">{{ t('create_new_course') }}</a>
+    </div>
+
+    {% if courses %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px;">
+      {% for course in courses %}
+      <div class="card">
+        <div style="height: 160px; border-radius: 12px; margin-bottom: 16px; overflow: hidden; position: relative;">
+          <img src="{{ url_for('static', filename='images/' + (course.image or 'course1.jpg')) }}"
+               style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; top: 12px; right: 12px;
+                      background: {% if course.status == 'published' %}#10B981{% elif course.status == 'cancelled' %}#EF4444{% else %}#64748B{% endif %};
+                      color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+            {% if course.status == 'published' %}{{ t('status_published') }}{% elif course.status == 'cancelled' %}{{ t('status_cancelled_short') }}{% else %}{{ t('status_draft') }}{% endif %}
+          </div>
+        </div>
+        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 8px;">{{ course.title }}</h3>
+        <div style="display: flex; gap: 12px; font-size: 13px; color: #64748B; margin-bottom: 12px; flex-wrap: wrap;">
+          <span>👥 {{ course.students_count }} {{ t('student_unit') }}</span>
+          <span>⭐ {{ course.rating or '—' }}</span>
+          <span>⏱ {{ course.duration or '—' }}</span>
+        </div>
+        <div style="font-weight: 800; color: #0891B2; font-size: 20px; margin-bottom: 16px;">
+          {% if course.price and course.price > 0 %}{{ course.price|int }} {{ t('sar') }}{% else %}{{ t('free') }}{% endif %}
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a href="{{ url_for('course_lessons', course_id=course.id) }}"
+             class="btn btn-primary" style="flex: 1 1 100%; text-align: center; font-size: 14px; padding: 10px; min-width: 100%;">
+             {{ t('manage_content_videos') }}
+          </a>
+          <a href="{{ url_for('course_details', course_id=course.id) }}"
+             class="btn btn-secondary" style="flex: 1; text-align: center; font-size: 14px; padding: 10px;">{{ t('view') }}</a>
+          {% if course.status == 'published' %}
+          <form method="POST" action="{{ url_for('course_cancel', course_id=course.id) }}" style="flex: 1;"
+                onsubmit="return confirm('{{ t('confirm_cancel_course') }}');">
+            <button type="submit" style="width: 100%; background: #FEE2E2; color: #DC2626; border: none; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: Cairo, sans-serif; font-size: 14px;">
+              {{ t('cancel_course_action') }}
+            </button>
+          </form>
+          {% elif course.status == 'cancelled' %}
+          <form method="POST" action="{{ url_for('course_republish', course_id=course.id) }}" style="flex: 1;">
+            <button type="submit" style="width: 100%; background: #D1FAE5; color: #065F46; border: none; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: Cairo, sans-serif; font-size: 14px;">
+              {{ t('republish_action') }}
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div style="font-size: 64px; margin-bottom: 16px;">🎓</div>
+      <h3 style="font-weight: 700; margin-bottom: 8px;">{{ t('no_courses_created') }}</h3>
+      <p style="color: #64748B; margin-bottom: 24px;">{{ t('share_expertise') }}</p>
+      <a href="{{ url_for('course_new') }}" class="btn btn-primary">{{ t('create_first_course_btn') }}</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

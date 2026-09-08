@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_evaluation_form_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content-wrapper">
+        <div style="text-align: center; margin-bottom: 48px;">
+            <h1 style="font-size: 48px; font-weight: 800; color: #0F172A; margin-bottom: 16px;">{{ t('rate_your_experience') }}</h1>
+            <p style="font-size: 18px; color: #64748B;">{{ t('help_improve_subtitle') }}</p>
+        </div>
+
+        <div class="card" style="max-width: 900px; margin: 0 auto; padding: 32px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #0891B2, #00B8DB); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 36px;">📊</div>
+                <h2 style="font-size: 24px; font-weight: 700; color: #0891B2; margin-bottom: 8px;">{{ t('eval_assistant') }}</h2>
+                <p style="color: #64748B;">{{ t('eval_assistant_subtitle') }}</p>
+            </div>
+
+            <div id="chat-container" style="background: #F8FAFC; border-radius: 16px; padding: 24px; margin-bottom: 24px; max-height: 500px; overflow-y: auto;">
+                <div id="chat-messages">
+                    <div class="ai-message" style="margin-bottom: 16px;">
+                        <div style="display: flex; gap: 12px; align-items: start;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">AI</div>
+                            <div style="background: white; padding: 16px; border-radius: 12px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <p style="margin: 0; color: #0F172A; line-height: 1.6;" id="welcome-msg"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <input type="text" id="user-input" placeholder="{{ t('answer_here_placeholder') }}" style="flex: 1; padding: 16px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 16px; font-family: 'Cairo', sans-serif;" />
+                <button id="send-btn" onclick="sendMessage()" style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 600; cursor: pointer; font-family: 'Cairo', sans-serif;">{{ t('send') }}</button>
+            </div>
+
+            <div style="text-align: center; color: #64748B; font-size: 14px; margin-bottom: 16px;">
+                <span id="progress-text"></span>
+            </div>
+
+            <div id="submit-section" style="display: none; text-align: center; margin-top: 24px;">
+                <button onclick="submitEvaluation()" style="background: linear-gradient(135deg, #10B981, #34D399); color: white; border: none; padding: 18px 48px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 18px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
+                    {{ t('finish_evaluation') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const WELCOME_MSG = "{{ t('eval_welcome_msg') }}";
+const QUESTION_N_OF = "{{ t('question_n_of') }}";
+const COMPLETED_LABEL = "{{ t('completed_label') }}";
+const THINKING_MSG = "{{ t('thinking') }}";
+const SORRY_ERROR_MSG = "{{ t('sorry_error') }}";
+const EVAL_SAVED_MSG = "{{ t('eval_saved') }}";
+const EVAL_SAVE_ERROR_MSG = "{{ t('eval_save_error') }}";
+const EVAL_ERROR_PREFIX = "{{ t('eval_error_prefix') }}";
+const FINISH_BTN_HTML = `<button onclick="submitEvaluation()" style="background: linear-gradient(135deg, #10B981, #34D399); color: white; border: none; padding: 18px 48px; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 18px;">{{ t('finish_evaluation') }}</button>`;
+
+document.getElementById('welcome-msg').textContent = WELCOME_MSG;
+document.getElementById('progress-text').textContent = QUESTION_N_OF.replace('{n}', '1');
+
+let conversationHistory = [];
+let questionCount = 1;
+let fullConversation = '';
+
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    if (!message) return;
+    addMessage(message, 'user');
+    fullConversation += `user: ${message}\n`;
+    input.value = '';
+    const loadingId = addMessage(THINKING_MSG, 'ai', true);
+    try {
+        const response = await fetch('/api/evaluation-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, history: conversationHistory })
+        });
+        const data = await response.json();
+        document.getElementById(loadingId).remove();
+        if (data.success) {
+            addMessage(data.response, 'ai');
+            fullConversation += `assistant: ${data.response}\n`;
+            conversationHistory.push({ role: 'user', content: message });
+            conversationHistory.push({ role: 'assistant', content: data.response });
+            questionCount++;
+            document.getElementById('progress-text').textContent = QUESTION_N_OF.replace('{n}', questionCount);
+            if (conversationHistory.length >= 16) {
+                document.getElementById('submit-section').style.display = 'block';
+                document.getElementById('progress-text').textContent = COMPLETED_LABEL;
+            }
+        }
+    } catch (error) {
+        document.getElementById(loadingId).remove();
+        addMessage(SORRY_ERROR_MSG, 'ai');
+    }
+}
+
+function addMessage(text, sender, isLoading = false) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageId = 'msg-' + Date.now();
+    if (sender === 'user') {
+        chatMessages.innerHTML += `
+            <div class="user-message" style="margin-bottom: 16px; display: flex; justify-content: flex-end;">
+                <div style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 16px; border-radius: 12px; max-width: 70%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p style="margin: 0; line-height: 1.6;">${text}</p>
+                </div>
+            </div>`;
+    } else {
+        chatMessages.innerHTML += `
+            <div id="${messageId}" class="ai-message" style="margin-bottom: 16px;">
+                <div style="display: flex; gap: 12px; align-items: start;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">AI</div>
+                    <div style="background: white; padding: 16px; border-radius: 12px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <p style="margin: 0; color: #0F172A; line-height: 1.6;">${text}</p>
+                    </div>
+                </div>
+            </div>`;
+    }
+    const chatContainer = document.getElementById('chat-container');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return messageId;
+}
+
+async function submitEvaluation() {
+    const submitBtn = document.getElementById('submit-section');
+    submitBtn.innerHTML = '<div style="text-align: center;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top-color: #0891B2; border-radius: 50%; animation: spin 1s linear infinite;"></div></div>';
+    try {
+        const response = await fetch('/api/evaluation-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conversation: fullConversation })
+        });
+        const data = await response.json();
+        if (data.success) {
+            submitBtn.innerHTML = `<div style="text-align: center; color: #10B981; font-size: 18px; font-weight: 700;">${EVAL_SAVED_MSG}</div>`;
+            setTimeout(() => { window.location.href = '/evaluation/personal'; }, 2000);
+        } else {
+            alert(EVAL_ERROR_PREFIX + ' ' + data.error);
+            submitBtn.innerHTML = FINISH_BTN_HTML;
+        }
+    } catch (error) {
+        alert(EVAL_SAVE_ERROR_MSG);
+        submitBtn.innerHTML = FINISH_BTN_HTML;
+    }
+}
+
+document.getElementById('user-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+
+const style = document.createElement('style');
+style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_terms_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 860px;">
+
+    <div style="margin-bottom: 40px;">
+      <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 10px;">{{ t('terms_title') }}</h1>
+      <p style="color: #64748B; font-size: 15px;">{{ t('last_updated') }}</p>
+    </div>
+
+    <!-- Section 1: Terms -->
+    <div class="card" style="padding: 32px; margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div style="width:44px; height:44px; background:linear-gradient(135deg,#0891B2,#00B8DB); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">📋</div>
+        <h2 style="font-size: 24px; font-weight: 800; color: #0891B2;">{{ t('terms_link') }}</h2>
+      </div>
+
+      <p style="color: #475569; line-height: 1.9; margin-bottom: 18px;">
+        بإنشاء حساب على منصة <strong>منطلق</strong>، يوافق المستخدمون على تقديم معلومات دقيقة وكاملة أثناء التسجيل. تجمع المنصة المعلومات الشخصية والأكاديمية الأساسية كالاسم والبريد الإلكتروني والجامعة والتخصص، وذلك بهدف تحسين تجربة المستخدم وتقديم توصيات مخصصة.
+      </p>
+
+      <p style="color: #475569; line-height: 1.9; margin-bottom: 18px;">
+        يتحمل المستخدمون المسؤولية الكاملة عن الحفاظ على سرية بيانات اعتماد حساباتهم، وعن جميع الأنشطة التي تجري من خلال حساباتهم. يُحظر مشاركة بيانات الدخول مع أي طرف آخر.
+      </p>
+
+      <div style="background: #FFF7ED; border-inline-start: 4px solid #F59E0B; padding: 16px 20px; border-radius: 8px; margin-bottom: 18px;">
+        <p style="color: #92400E; font-weight: 700; margin-bottom: 6px;">{{ t('academic_integrity_title') }}</p>
+        <p style="color: #78350F; line-height: 1.8; font-size: 14px; margin: 0;">
+          تُطبّق المنصة آليات فلترة محتوى تمنع استخدام المنصة لطلب الحلول الأكاديمية المباشرة، بما يشمل طلب حل الواجبات والاختبارات والكويزات. أي محاولة لانتهاك هذه السياسة قد تؤدي إلى تعليق الحساب.
+        </p>
+      </div>
+
+      <p style="color: #475569; line-height: 1.9;">
+        تستخدم المنصة الذكاء الاصطناعي لتقديم خدمات التوصيات والدعم. يوافق المستخدمون على أن تعاملاتهم قد تُحلَّل بهدف تحسين أداء النظام ودقة التوصيات.
+      </p>
+    </div>
+
+    <!-- Section 2: Privacy Policy -->
+    <div class="card" style="padding: 32px; margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <div style="width:44px; height:44px; background:linear-gradient(135deg,#7C3AED,#9F67FA); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">🔒</div>
+        <h2 style="font-size: 24px; font-weight: 800; color: #7C3AED;">{{ t('privacy_link') }}</h2>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #1E293B;">{{ t('data_we_collect') }}</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          {% for item in [
+            ('👤', 'الاسم الكامل'),
+            ('📧', 'البريد الإلكتروني'),
+            ('🏛️', 'الجامعة والتخصص'),
+            ('📱', 'رقم الجوال'),
+            ('🎓', 'السنة الأكاديمية والمعدل'),
+            ('💼', 'الاهتمامات المهنية')
+          ] %}
+          <div style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:#F8FAFC; border-radius:8px; font-size:14px;">
+            <span>{{ item[0] }}</span><span style="color:#334155; font-weight:600;">{{ item[1] }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #1E293B;">{{ t('how_we_use_data') }}</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 10px;">
+          <li style="display:flex; gap:10px; align-items:start; color:#475569; font-size:14px; line-height:1.7;">
+            <span style="color:#10B981; font-weight:700; flex-shrink:0;">✓</span>
+            تحسين تجربة المستخدم وتقديم توصيات مخصصة بناءً على ملفك الأكاديمي
+          </li>
+          <li style="display:flex; gap:10px; align-items:start; color:#475569; font-size:14px; line-height:1.7;">
+            <span style="color:#10B981; font-weight:700; flex-shrink:0;">✓</span>
+            تمكين التواصل بين الطلاب والخريجين عبر المنصة
+          </li>
+          <li style="display:flex; gap:10px; align-items:start; color:#475569; font-size:14px; line-height:1.7;">
+            <span style="color:#10B981; font-weight:700; flex-shrink:0;">✓</span>
+            تحليل التفاعلات لتحسين أداء النظام ودقة التوصيات
+          </li>
+          <li style="display:flex; gap:10px; align-items:start; color:#475569; font-size:14px; line-height:1.7;">
+            <span style="color:#10B981; font-weight:700; flex-shrink:0;">✓</span>
+            إرسال الإشعارات المتعلقة بالدورات والرسائل والمجتمع
+          </li>
+        </ul>
+      </div>
+
+      <div style="background: linear-gradient(135deg, #EFF6FF, #F0F9FF); border: 1px solid #BFDBFE; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 14px; color: #1D4ED8; display:flex; align-items:center; gap:8px;">
+          {{ t('cybersecurity_title') }}
+        </h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 10px;">
+          <li style="display:flex; gap:10px; align-items:start; color:#1E40AF; font-size:14px; line-height:1.7;"><span style="flex-shrink:0; font-weight:700;">🔐</span> جميع بيانات المستخدمين مخزّنة بشكل آمن ولن تُشارَك مع أي طرف ثالث.</li>
+          <li style="display:flex; gap:10px; align-items:start; color:#1E40AF; font-size:14px; line-height:1.7;"><span style="flex-shrink:0; font-weight:700;">🔑</span> كلمات المرور مشفّرة باستخدام خوارزميات تجزئة قوية ولا يمكن الاطلاع عليها حتى للمشغّلين.</li>
+          <li style="display:flex; gap:10px; align-items:start; color:#1E40AF; font-size:14px; line-height:1.7;"><span style="flex-shrink:0; font-weight:700;">🤖</span> تُطبّق المنصة خوارزميات فلترة المحتوى بالذكاء الاصطناعي لمنع المحتوى غير اللائق.</li>
+          <li style="display:flex; gap:10px; align-items:start; color:#1E40AF; font-size:14px; line-height:1.7;"><span style="flex-shrink:0; font-weight:700;">💳</span> بيانات الدفع مشفّرة بالكامل ولا تُخزَّن على خوادم المنصة.</li>
+          <li style="display:flex; gap:10px; align-items:start; color:#1E40AF; font-size:14px; line-height:1.7;"><span style="flex-shrink:0; font-weight:700;">🔒</span> تُستخدم البيانات المجمّعة فقط لتحسين وظائف النظام والتخصيص وتعزيز تجربة المستخدم.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 12px; color: #1E293B;">{{ t('user_rights') }}</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          {% for right in [
+            ('📥', 'الحق في الوصول لبياناتك'),
+            ('✏️', 'الحق في تصحيح بياناتك'),
+            ('🗑️', 'الحق في حذف حسابك'),
+            ('📤', 'الحق في تصدير بياناتك')
+          ] %}
+          <div style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:#F8FAFC; border-radius:8px; font-size:14px; color:#334155; font-weight:600;">
+            <span>{{ right[0] }}</span><span>{{ right[1] }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Agreement banner -->
+    <div style="background: linear-gradient(135deg, #0891B2, #00B8DB); border-radius: 12px; padding: 24px 28px; text-align: center; color: white;">
+      <p style="font-size: 15px; line-height: 1.8; margin: 0;">{{ t('agreement_banner') | safe }}</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 32px;">
+      <a href="{{ url_for('dashboard') if session.user_id else url_for('landing') }}"
+         class="btn btn-secondary" style="padding: 12px 32px;">{{ t('back') }} ←</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

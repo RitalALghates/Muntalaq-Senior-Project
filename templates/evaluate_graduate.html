@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_evaluate_graduate_title') }} {{ graduate.full_name }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 800px;">
+    <a href="{{ url_for('graduate_profile', graduate_id=graduate.id) }}" style="color: #0891B2; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 16px;">{{ t('back_to_profile') }}</a>
+
+    <!-- Graduate Info Header -->
+    <div class="card" style="padding: 24px; margin-bottom: 24px; display: flex; gap: 16px; align-items: center;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 24px;">
+        {{ graduate.full_name[0] }}
+      </div>
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">{{ t('evaluate_graduate_prefix') }} {{ graduate.full_name }}</h1>
+        <p style="color: #64748B; font-size: 14px;">{{ graduate.major or '' }}</p>
+      </div>
+    </div>
+
+    <!-- Evaluation Form -->
+    <form method="POST" class="card" style="padding: 32px;" id="eval-form">
+      <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">{{ t('rating_criteria') }}</h2>
+      <p style="color: #64748B; margin-bottom: 32px;">{{ t('rate_each_criterion') }}</p>
+
+      <!-- Clarity -->
+      <div style="margin-bottom: 32px;">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 16px;">
+          {{ t('clarity_q') }} <span style="color: #EF4444;">*</span>
+        </label>
+        <p style="color: #64748B; font-size: 13px; margin-bottom: 12px;">{{ t('clarity_hint') }}</p>
+        <div class="star-group" data-name="clarity" style="display: flex; gap: 8px;">
+          {% for i in range(1, 6) %}
+          <button type="button" data-value="{{ i }}" onclick="setStar(this)"
+                  style="width: 50px; height: 50px; border: 2px solid #E2E8F0; background: white; border-radius: 10px; font-size: 24px; cursor: pointer; transition: all 0.2s;">☆</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="clarity" id="clarity-input" value="0">
+      </div>
+
+      <!-- Content value -->
+      <div style="margin-bottom: 32px;">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 16px;">
+          {{ t('content_value_q') }} <span style="color: #EF4444;">*</span>
+        </label>
+        <p style="color: #64748B; font-size: 13px; margin-bottom: 12px;">{{ t('content_value_hint') }}</p>
+        <div class="star-group" data-name="content_value" style="display: flex; gap: 8px;">
+          {% for i in range(1, 6) %}
+          <button type="button" data-value="{{ i }}" onclick="setStar(this)"
+                  style="width: 50px; height: 50px; border: 2px solid #E2E8F0; background: white; border-radius: 10px; font-size: 24px; cursor: pointer; transition: all 0.2s;">☆</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="content_value" id="content_value-input" value="0">
+      </div>
+
+      <!-- Interaction -->
+      <div style="margin-bottom: 32px;">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px; font-size: 16px;">
+          {{ t('interaction_q') }} <span style="color: #EF4444;">*</span>
+        </label>
+        <p style="color: #64748B; font-size: 13px; margin-bottom: 12px;">{{ t('interaction_hint') }}</p>
+        <div class="star-group" data-name="interaction" style="display: flex; gap: 8px;">
+          {% for i in range(1, 6) %}
+          <button type="button" data-value="{{ i }}" onclick="setStar(this)"
+                  style="width: 50px; height: 50px; border: 2px solid #E2E8F0; background: white; border-radius: 10px; font-size: 24px; cursor: pointer; transition: all 0.2s;">☆</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="interaction" id="interaction-input" value="0">
+      </div>
+
+      <!-- Notes (FR5.6) -->
+      <div style="margin-bottom: 32px;">
+        <label style="display: block; font-weight: 700; margin-bottom: 8px;">{{ t('additional_notes') }}</label>
+        <textarea name="notes" rows="5"
+                  style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; resize: vertical;"
+                  placeholder="{{ t('share_experience_placeholder') }}"></textarea>
+      </div>
+
+      <!-- Live preview -->
+      <div id="live-preview" style="display: none; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 4px;">{{ t('rating_result') }}</div>
+        <div id="live-score" style="font-size: 36px; font-weight: 800; color: white;">0.0</div>
+        <div style="font-size: 14px; opacity: 0.9;">{{ t('out_of_5') }}</div>
+      </div>
+
+      <!-- Buttons: Reset (FR5.7) + Submit (FR5.8) -->
+      <div style="display: flex; gap: 12px;">
+        <button type="submit" class="btn btn-primary" style="flex: 2; padding: 14px; font-size: 16px;">{{ t('submit_rating') }}</button>
+        <button type="button" onclick="resetForm()" class="btn btn-secondary" style="flex: 1; padding: 14px; font-size: 16px;">{{ t('reset_rating') }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const RESET_CONFIRM_MSG = "{{ t('reset_confirm') }}";
+const RATE_ALL_MSG = "{{ t('rate_all_criteria') }}";
+
+function setStar(btn) {
+  const group = btn.parentElement;
+  const name = group.dataset.name;
+  const value = parseInt(btn.dataset.value);
+  document.getElementById(name + '-input').value = value;
+  [...group.children].forEach((b, idx) => {
+    if (idx < value) {
+      b.textContent = '⭐';
+      b.style.background = '#FEF3C7';
+      b.style.borderColor = '#F59E0B';
+    } else {
+      b.textContent = '☆';
+      b.style.background = 'white';
+      b.style.borderColor = '#E2E8F0';
+    }
+  });
+  updatePreview();
+}
+
+function updatePreview() {
+  const c = parseInt(document.getElementById('clarity-input').value) || 0;
+  const cv = parseInt(document.getElementById('content_value-input').value) || 0;
+  const i = parseInt(document.getElementById('interaction-input').value) || 0;
+  if (c && cv && i) {
+    const avg = ((c + cv + i) / 3).toFixed(1);
+    document.getElementById('live-score').textContent = avg;
+    document.getElementById('live-preview').style.display = 'block';
+  } else {
+    document.getElementById('live-preview').style.display = 'none';
+  }
+}
+
+function resetForm() {
+  if (!confirm(RESET_CONFIRM_MSG)) return;
+  document.getElementById('eval-form').reset();
+  document.querySelectorAll('.star-group').forEach(g => {
+    [...g.children].forEach(b => {
+      b.textContent = '☆';
+      b.style.background = 'white';
+      b.style.borderColor = '#E2E8F0';
+    });
+    document.getElementById(g.dataset.name + '-input').value = 0;
+  });
+  document.getElementById('live-preview').style.display = 'none';
+}
+
+document.getElementById('eval-form').addEventListener('submit', function(e) {
+  const c = parseInt(document.getElementById('clarity-input').value) || 0;
+  const cv = parseInt(document.getElementById('content_value-input').value) || 0;
+  const i = parseInt(document.getElementById('interaction-input').value) || 0;
+  if (!c || !cv || !i) {
+    e.preventDefault();
+    alert(RATE_ALL_MSG);
+  }
+});
+</script>
+{% endblock %}

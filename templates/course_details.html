@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <a href="{{ url_for('courses_list') }}" style="color: #0891B2; text-decoration: none; font-weight: 600; margin-bottom: 16px; display: inline-block;">{{ t('back_to_courses') }}</a>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin-top: 16px;">
+      <!-- Left: content -->
+      <div>
+        <div style="height: 320px; border-radius: 16px; overflow: hidden; margin-bottom: 24px;">
+          <img src="{{ url_for('static', filename='images/' + course.image) }}"
+               style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+          {% for tag in course.tags_list %}
+          <span style="background: #E0F2FE; color: #0891B2; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ tag }}</span>
+          {% endfor %}
+        </div>
+
+        <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 16px;">{{ course.title }}</h1>
+
+        <div style="display: flex; gap: 20px; color: #64748B; margin-bottom: 24px; flex-wrap: wrap;">
+          <span>⭐ <strong>{{ course.rating or '—' }}</strong> ({{ course.reviews_count or 0 }} {{ t('reviews_count_suffix') }})</span>
+          <span>⏱ {{ course.duration or '—' }}</span>
+          <span>📊 {{ course.level or '—' }}</span>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+          <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 12px;">{{ t('about_course') }}</h2>
+          <p style="color: #475569; line-height: 1.8;">{{ course.description or t('no_description') }}</p>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2 style="font-size: 22px; font-weight: 700;">{{ t('course_content_label') }}</h2>
+            {% if enrolled %}
+            <a href="{{ url_for('course_content', course_id=course.id) }}"
+               class="btn btn-primary" style="padding: 8px 18px; font-size: 13px;">{{ t('continue_learning_btn') }}</a>
+            {% endif %}
+          </div>
+
+          {% if not enrolled %}
+          <div style="background:#FFF7ED; border:1px solid #FDE68A; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; gap:10px; align-items:center; font-size:14px; color:#92400E;">
+            <span style="font-size:18px;">🔒</span>
+            <span>{{ t('enroll_to_access') }}</span>
+          </div>
+          {% endif %}
+
+          <div style="display: grid; gap: 10px;">
+            {% if lessons %}
+              {% for lesson in lessons %}
+              {% set accessible = enrolled %}
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:14px;
+                          border-radius:10px; border: 1px solid {% if accessible %}#BAE6FD{% else %}#E2E8F0{% endif %};
+                          background: {% if accessible %}#F0F9FF{% else %}#F8FAFC{% endif %};">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;
+                              background: {% if accessible %}#0891B2{% else %}#CBD5E1{% endif %}; color:white;">
+                    {% if accessible %}{{ loop.index }}{% else %}🔒{% endif %}
+                  </div>
+                  <div>
+                    <div style="font-weight:600; font-size:14px; color:{% if accessible %}#0F172A{% else %}#94A3B8{% endif %};">
+                      {{ lesson.title }}
+                    </div>
+                    <div style="font-size:12px; color:#64748B; margin-top:2px;">🎥 {{ lesson.duration or '—' }}</div>
+                  </div>
+                </div>
+                {% if accessible %}
+                <a href="{{ url_for('course_content', course_id=course.id) }}?lesson={{ lesson.id }}"
+                   style="font-size:12px; color:#0891B2; text-decoration:none; font-weight:600; white-space:nowrap;">{{ t('watch_action') }}</a>
+                {% else %}
+                <span style="font-size:12px; color:#CBD5E1; font-weight:600;">{{ t('locked') }}</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align:center; color:#94A3B8; padding:24px; border:1px dashed #E2E8F0; border-radius:10px;">
+                <div style="font-size:32px; margin-bottom:6px;">🎬</div>
+                <p>{{ t('no_lessons_yet') }}</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div>
+        <div class="card" style="position: sticky; top: 90px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 36px; font-weight: 800; color: #0891B2;">
+              {% if course.price and course.price > 0 %}{{ course.price|int }} {{ t('sar') }}{% else %}{{ t('free') }}{% endif %}
+            </div>
+          </div>
+
+          {% if enrolled %}
+          <div style="background: #D1FAE5; color: #065F46; padding: 16px; border-radius: 12px; text-align: center; margin-bottom: 16px; font-weight: 600;">
+            {{ t('enrolled_status') }}
+          </div>
+          <a href="{{ url_for('my_courses') }}" class="btn btn-primary" style="width: 100%; text-align: center;">{{ t('go_to_my_courses') }}</a>
+          {% else %}
+          <a href="{{ url_for('course_checkout', course_id=course.id) }}"
+             class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px; text-align: center; display: block;">
+            {% if course.price and course.price > 0 %}
+            {{ t('pay_and_enroll') }} {{ course.price|int }} {{ t('sar') }}
+            {% else %}
+            {{ t('enroll_free') }}
+            {% endif %}
+          </a>
+          {% endif %}
+
+          <button id="fav-btn" onclick="toggleFav({{ course.id }}, this)"
+                  style="width: 100%; margin-top: 12px; padding: 12px; background: white; border: 2px solid #E2E8F0; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: Cairo, sans-serif;">
+            {% if is_fav %}{{ t('remove_from_favorites') }}{% else %}{{ t('add_to_favorites') }}{% endif %}
+          </button>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #E2E8F0;">
+            <h3 style="font-weight: 700; margin-bottom: 12px;">{{ t('instructor_label') }}</h3>
+            <a href="{{ url_for('graduate_profile', graduate_id=course.instructor_id) }}"
+               style="display: flex; gap: 12px; align-items: center; text-decoration: none; color: inherit;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                {{ course.instructor[0] }}
+              </div>
+              <div>
+                <div style="font-weight: 700;">{{ course.instructor }}</div>
+                <div style="font-size: 13px; color: #64748B;">{{ course.instructor_major or '' }}</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FAV_REMOVE_LABEL = "{{ t('remove_from_favorites') }}";
+const FAV_ADD_LABEL = "{{ t('add_to_favorites') }}";
+async function toggleFav(courseId, btn) {
+  const r = await fetch('/api/favorites/' + courseId, { method: 'POST' });
+  const d = await r.json();
+  if (d.success) btn.innerHTML = d.favorite ? FAV_REMOVE_LABEL : FAV_ADD_LABEL;
+}
+</script>
+{% endblock %}

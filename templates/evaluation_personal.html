@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ t('my_personal_evaluation') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+      <h1 style="font-size: 48px; font-weight: 800; color: #0F172A">{{ t('my_personal_evaluation') }}</h1>
+      <div style="display: flex; gap: 12px">
+        <button onclick="window.location.href='/evaluation/aggregate'" class="btn btn-secondary">{{ t('view_aggregate') }}</button>
+        <button onclick="window.location.href='/evaluation/form'" class="btn btn-primary">{{ t('new_evaluation') }}</button>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="card" style="background: linear-gradient(135deg, #10B981, #34D399); color: white; padding: 24px; margin-bottom: 32px;">
+      <div style="display: flex; align-items: center; gap: 16px">
+        <div style="font-size: 48px">🎉</div>
+        <div>
+          <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 8px; color: white;">{{ t('thanks_for_time') }}</h3>
+          <p style="margin: 0; font-size: 16px; opacity: 0.95">{{ t('help_improve_subtitle') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;">
+      <div class="card">
+        <div style="text-align: center; padding: 24px">
+          <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('content_quality') }}</div>
+          <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.content_quality }}%</div>
+          <div class="progress-bar" style="height: 8px">
+            <div class="progress-fill" style="width: {{ evaluation.content_quality }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="text-align: center; padding: 24px">
+          <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('engagement') }}</div>
+          <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.engagement }}%</div>
+          <div class="progress-bar" style="height: 8px">
+            <div class="progress-fill" style="width: {{ evaluation.engagement }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="text-align: center; padding: 24px">
+          <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('responsiveness') }}</div>
+          <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.interaction }}%</div>
+          <div class="progress-bar" style="height: 8px">
+            <div class="progress-fill" style="width: {{ evaluation.interaction }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Cards -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+      <div class="card text-center" style="padding: 48px">
+        <div style="font-size: 64px; font-weight: 700; color: #0891B2; margin-bottom: 8px;">{{ evaluation.overall_rating }}</div>
+        <div style="color: #64748B; font-size: 18px; margin-bottom: 12px">{{ t('overall_rating_label') }}</div>
+        <div style="color: #F59E0B; font-size: 32px">
+          {% for i in range(5) %}{% if i < evaluation.overall_rating|int %}⭐{% else %}☆{% endif %}{% endfor %}
+        </div>
+      </div>
+      <div class="card text-center" style="padding: 48px">
+        <div style="font-size: 48px; margin-bottom: 16px">
+          {% if evaluation.would_recommend %}<span style="color: #10B981">✅</span>{% else %}<span style="color: #EF4444">❌</span>{% endif %}
+        </div>
+        <div style="color: #64748B; font-size: 18px">
+          {% if evaluation.would_recommend %}{{ t('will_recommend') }}{% else %}{{ t('wont_recommend') }}{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Ratings -->
+    <div class="card" style="padding: 32px; margin-bottom: 24px">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #0891B2;">{{ t('detailed_ratings') }}</h3>
+      <div style="margin-bottom: 24px">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-weight: 600; color: #0F172A">{{ t('instructor_rating_label') }}</span>
+          <div style="color: #F59E0B; font-size: 20px">
+            {% for i in range(5) %}{% if i < evaluation.instructor_rating|int %}⭐{% else %}☆{% endif %}{% endfor %}
+            <span style="color: #0F172A; font-weight: 700; margin-inline-start: 8px">{{ evaluation.instructor_rating }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom: 24px">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-weight: 600; color: #0F172A">{{ t('platform_rating_label') }}</span>
+          <div style="color: #F59E0B; font-size: 20px">
+            {% for i in range(5) %}{% if i < evaluation.platform_rating|int %}⭐{% else %}☆{% endif %}{% endfor %}
+            <span style="color: #0F172A; font-weight: 700; margin-inline-start: 8px">{{ evaluation.platform_rating }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if evaluation.strengths %}
+    <div class="card" style="padding: 32px; margin-bottom: 24px">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #10B981;">{{ t('strengths_label') }}</h3>
+      <p style="color: #0F172A; line-height: 1.8; white-space: pre-wrap">{{ evaluation.strengths }}</p>
+    </div>
+    {% endif %}
+
+    {% if evaluation.improvements %}
+    <div class="card" style="padding: 32px; margin-bottom: 24px">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #F59E0B;">{{ t('improvements_label') }}</h3>
+      <p style="color: #0F172A; line-height: 1.8; white-space: pre-wrap">{{ evaluation.improvements }}</p>
+    </div>
+    {% endif %}
+
+    {% if evaluation.comments %}
+    <div class="card" style="padding: 32px; margin-bottom: 24px">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #0891B2;">{{ t('extra_comments_label') }}</h3>
+      <p style="color: #0F172A; line-height: 1.8; white-space: pre-wrap">{{ evaluation.comments }}</p>
+    </div>
+    {% endif %}
+
+    <div style="text-align: center; color: #94A3B8; font-size: 14px">
+      {{ t('evaluated_on') }} {{ evaluation.created_at }}
+    </div>
+  </div>
+</div>
+{% endblock %}

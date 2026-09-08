@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_checkout_title') }} - {{ course.title }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 900px;">
+    <a href="{{ url_for('course_details', course_id=course.id) }}"
+       style="color: #0891B2; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 20px;">{{ t('checkout_back') }}</a>
+
+    <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">{{ t('checkout_title') }}</h1>
+    <p style="color: #64748B; margin-bottom: 32px;">{{ t('checkout_subtitle') }}</p>
+
+    {% if errors %}
+    <div style="background:#FEE2E2; color:#DC2626; border-radius:10px; padding:14px 18px; margin-bottom:20px;">
+      <strong>{{ t('fix_errors_below') }}</strong>
+      <ul style="margin: 8px 0 0 16px; padding: 0;">
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start;">
+
+      <!-- Payment Form -->
+      <form method="POST" id="payment-form">
+        <div class="card" style="padding: 28px;">
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #F1F5F9;">
+            💳 {{ t('cardholder_name') }}
+          </h2>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display:block; font-weight:600; margin-bottom:8px; font-size:14px;">{{ t('cardholder_name') }}</label>
+            <input type="text" name="card_name" required
+                   value="{{ form.get('card_name', '') }}"
+                   placeholder="{{ t('cardholder_name_placeholder') }}"
+                   style="width:100%; padding:12px 14px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif; font-size:14px;">
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display:block; font-weight:600; margin-bottom:8px; font-size:14px;">{{ t('card_number') }}</label>
+            <input type="text" name="card_number" id="card-number" required
+                   maxlength="19"
+                   value="{{ form.get('card_number', '') }}"
+                   placeholder="XXXX  XXXX  XXXX  XXXX"
+                   oninput="formatCard(this)"
+                   style="width:100%; padding:12px 14px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif; font-size:14px; letter-spacing:2px; direction:ltr; text-align:left;">
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div>
+              <label style="display:block; font-weight:600; margin-bottom:8px; font-size:14px;">{{ t('expiry_date') }}</label>
+              <input type="text" name="expiry" id="expiry" required
+                     maxlength="5"
+                     value="{{ form.get('expiry', '') }}"
+                     placeholder="MM/YY"
+                     oninput="formatExpiry(this)"
+                     style="width:100%; padding:12px 14px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif; font-size:14px; direction:ltr; text-align:left;">
+            </div>
+            <div>
+              <label style="display:block; font-weight:600; margin-bottom:8px; font-size:14px;">{{ t('cvv_code') }}</label>
+              <input type="password" name="cvv" required
+                     maxlength="4"
+                     placeholder="XXX"
+                     style="width:100%; padding:12px 14px; border:2px solid #E2E8F0; border-radius:10px; font-family:Cairo,sans-serif; font-size:14px; direction:ltr; text-align:left;">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-bottom:24px; padding:12px; background:#F8FAFC; border-radius:8px; align-items:center;">
+            <span style="font-size:12px; color:#64748B; font-weight:600;">{{ t('accepted_cards') }}</span>
+            <span style="font-size:20px;">💳</span>
+            <span style="font-size:13px; font-weight:700; color:#1A56DB;">VISA</span>
+            <span style="font-size:13px; font-weight:700; color:#EB001B;">Mastercard</span>
+            <span style="font-size:13px; font-weight:700; color:#2E77BC;">Mada</span>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:24px; padding:10px 14px; background:#F0FDF4; border-radius:8px; border: 1px solid #BBF7D0;">
+            <span style="font-size:16px;">🔒</span>
+            <span style="font-size:13px; color:#166534;">{{ t('ssl_notice') }}</span>
+          </div>
+
+          <button type="submit" id="pay-btn" class="btn btn-primary"
+                  style="width:100%; padding:16px; font-size:16px; font-weight:700;">
+            {{ t('pay_and_enroll') }} {{ course.price|int }} {{ t('sar') }}
+          </button>
+        </div>
+      </form>
+
+      <!-- Order Summary -->
+      <div>
+        <div class="card" style="padding: 24px; position: sticky; top: 90px;">
+          <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #F1F5F9;">
+            {{ t('order_summary') }}
+          </h2>
+
+          <div style="border-radius:10px; overflow:hidden; margin-bottom:16px; height:140px;">
+            <img src="{{ url_for('static', filename='images/' + course.image) }}"
+                 style="width:100%; height:100%; object-fit:cover;">
+          </div>
+
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px; line-height:1.4;">{{ course.title }}</div>
+          <div style="font-size:13px; color:#64748B; margin-bottom:4px;">{{ t('instructor_label') }}: {{ course.instructor }}</div>
+          {% if course.duration %}
+          <div style="font-size:13px; color:#64748B; margin-bottom:4px;">⏱ {{ course.duration }}</div>
+          {% endif %}
+          {% if course.level %}
+          <div style="font-size:13px; color:#64748B; margin-bottom:16px;">📊 {{ course.level }}</div>
+          {% endif %}
+
+          <div style="border-top: 2px solid #F1F5F9; padding-top: 16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; color:#64748B;">
+              <span>{{ t('course_price_label') }}</span>
+              <span>{{ course.price|int }} {{ t('sar') }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:800; color:#0891B2; padding-top:8px; border-top:1px solid #E2E8F0;">
+              <span>{{ t('total_label') }}</span>
+              <span>{{ course.price|int }} {{ t('sar') }}</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px; padding:10px; background:#EFF6FF; border-radius:8px; font-size:12px; color:#1D4ED8; text-align:center; font-weight:600;">
+            {{ t('refund_guarantee') }}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const PROCESSING_MSG = "{{ t('processing_payment') }}";
+
+function formatCard(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 16);
+  let parts = [];
+  for (let i = 0; i < v.length; i += 4) parts.push(v.substring(i, i + 4));
+  input.value = parts.join('  ');
+}
+
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+  input.value = v;
+}
+
+document.getElementById('payment-form').addEventListener('submit', function() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = PROCESSING_MSG;
+});
+</script>
+{% endblock %}

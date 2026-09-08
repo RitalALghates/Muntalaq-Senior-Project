@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ t('evaluation_dashboard') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content-wrapper">
+        <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 32px;">{{ t('evaluation_dashboard') }}</h1>
+        <div class="evaluation-metrics">
+            <div class="metric-card">
+                <div class="metric-label">{{ t('content_quality') }}</div>
+                <div class="metric-value">{{ evaluation.content_quality }}%</div>
+                <div class="metric-bar"><div class="metric-bar-fill" style="width: {{ evaluation.content_quality }}%;"></div></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">{{ t('engagement') }}</div>
+                <div class="metric-value">{{ evaluation.engagement }}%</div>
+                <div class="metric-bar"><div class="metric-bar-fill" style="width: {{ evaluation.engagement }}%;"></div></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">{{ t('responsiveness') }}</div>
+                <div class="metric-value">{{ evaluation.interaction }}%</div>
+                <div class="metric-bar"><div class="metric-bar-fill" style="width: {{ evaluation.interaction }}%;"></div></div>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="card text-center" style="padding: 48px;">
+                <div style="font-size: 64px; font-weight: 700; color: #0891B2; margin-bottom: 8px;">{{ evaluation.overall_rating }}</div>
+                <div style="color: #64748B; font-size: 18px;">{{ t('overall_rating_label') }}</div>
+                <div style="color: #F59E0B; font-size: 32px; margin-top: 8px;">⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="card text-center" style="padding: 48px;">
+                <div style="font-size: 64px; font-weight: 700; color: #0891B2; margin-bottom: 8px;">{{ evaluation.total_reviews }}</div>
+                <div style="color: #64748B; font-size: 18px;">{{ t('total_reviews') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

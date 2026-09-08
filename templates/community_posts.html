@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_posts_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper" style="max-width: 800px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <h1 style="font-size: 36px; font-weight: 800;">{{ t('posts_title') }}</h1>
+      <a href="{{ url_for('community') }}" style="color: #0891B2; text-decoration: none; font-weight: 600;">{{ t('community_groups_link') }}</a>
+    </div>
+
+    <!-- Search (FR10.5) -->
+    <form method="GET" style="margin-bottom: 20px;">
+      <div style="display: flex; gap: 8px;">
+        <input type="text" name="q" value="{{ search }}" placeholder="{{ t('search_posts_placeholder') }}"
+               style="flex: 1; padding: 12px 16px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif;">
+        <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">{{ t('search') }}</button>
+        {% if search %}
+        <a href="{{ url_for('community_posts') }}" class="btn btn-secondary" style="padding: 12px 20px; text-decoration: none;">{{ t('clear') }}</a>
+        {% endif %}
+      </div>
+    </form>
+
+    <!-- Create post (FR10.2) -->
+    <form method="POST" action="{{ url_for('post_create') }}" class="card" style="margin-bottom: 24px; padding: 20px;">
+      <textarea name="content" required rows="3" placeholder="{{ t('share_thoughts') }}"
+                style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; resize: vertical; margin-bottom: 12px;"></textarea>
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <input type="text" name="tags" placeholder="{{ t('tags_input_placeholder') }}"
+               style="flex: 1; min-width: 200px; padding: 10px; border: 2px solid #E2E8F0; border-radius: 10px; font-family: Cairo, sans-serif; font-size: 14px;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 28px;">{{ t('publish_post') }}</button>
+      </div>
+    </form>
+
+    <!-- Posts Feed -->
+    {% if posts %}
+    <div style="display: grid; gap: 16px;">
+      {% for post in posts %}
+      <div class="card" style="padding: 20px;" id="post-{{ post.id }}">
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">{{ post.avatar }}</div>
+          <div>
+            <div style="font-weight: 700;">{{ post.author }}</div>
+            <div style="font-size: 12px; color: #64748B;">{{ post.created_at }}</div>
+          </div>
+        </div>
+        <div style="color: #0F172A; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap;">{{ post.content }}</div>
+        {% if post.tags_list %}
+        <div style="display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;">
+          {% for tag in post.tags_list %}
+          <span style="background: #E0F2FE; color: #0891B2; padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 600;">#{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div style="display: flex; gap: 20px; padding-top: 12px; border-top: 1px solid #F1F5F9;">
+          <button onclick="toggleLike({{ post.id }}, this)"
+                  style="background: none; border: none; cursor: pointer; font-family: Cairo, sans-serif; font-size: 14px; color: {% if post.liked %}#EF4444{% else %}#64748B{% endif %}; font-weight: 600; display: flex; gap: 6px; align-items: center;">
+            <span class="like-icon">{% if post.liked %}❤️{% else %}🤍{% endif %}</span>
+            <span class="like-count">{{ post.likes }}</span>
+          </button>
+          <button onclick="toggleComments({{ post.id }})"
+                  style="background: none; border: none; cursor: pointer; font-family: Cairo, sans-serif; font-size: 14px; color: #64748B; font-weight: 600; display: flex; gap: 6px; align-items: center;">
+            💬 <span class="comment-count">{{ post.comments }}</span>
+          </button>
+        </div>
+        <!-- Comments section -->
+        <div id="comments-{{ post.id }}" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #F1F5F9;">
+          <div id="comment-error-{{ post.id }}" style="display:none; background:#FEE2E2; color:#DC2626; border-radius:8px; padding:8px 12px; margin-bottom:8px; font-size:13px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="comment-input-{{ post.id }}" placeholder="{{ t('add_comment_placeholder') }}"
+                   style="flex: 1; padding: 10px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: Cairo, sans-serif; font-size: 14px;">
+            <button onclick="sendComment({{ post.id }})" class="btn btn-primary" style="padding: 10px 16px; font-size: 14px;">{{ t('send') }}</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 12px;">📝</div>
+      <h3 style="font-weight: 700; margin-bottom: 8px;">
+        {% if search %}{{ t('no_results') }}{% else %}{{ t('no_posts_yet') }}{% endif %}
+      </h3>
+      <p style="color: #64748B;">
+        {% if search %}{{ t('try_different_search') }}{% else %}{{ t('be_first_to_post') }}{% endif %}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+const COMMENT_ADDED_MSG = "{{ t('comment_added') }}";
+const COMMENT_FAILED_MSG = "{{ t('failed_add_comment') }}";
+
+async function toggleLike(postId, btn) {
+  const r = await fetch('/api/posts/' + postId + '/like', { method: 'POST' });
+  const d = await r.json();
+  if (d.success) {
+    btn.querySelector('.like-icon').textContent = d.liked ? '❤️' : '🤍';
+    btn.querySelector('.like-count').textContent = d.count;
+    btn.style.color = d.liked ? '#EF4444' : '#64748B';
+  }
+}
+
+function toggleComments(postId) {
+  const div = document.getElementById('comments-' + postId);
+  div.style.display = div.style.display === 'none' ? 'block' : 'none';
+}
+
+async function sendComment(postId) {
+  const input = document.getElementById('comment-input-' + postId);
+  const errBox = document.getElementById('comment-error-' + postId);
+  const content = input.value.trim();
+  if (!content) return;
+  errBox.style.display = 'none';
+  const r = await fetch('/api/posts/' + postId + '/comment', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content: content})
+  });
+  const d = await r.json();
+  if (d.success) {
+    input.value = '';
+    document.getElementById('post-' + postId).querySelector('.comment-count').textContent = d.count;
+    const confirmation = document.createElement('div');
+    confirmation.textContent = COMMENT_ADDED_MSG;
+    confirmation.style.cssText = 'color:#10B981;font-size:13px;margin-top:6px;font-weight:600;';
+    input.parentElement.after(confirmation);
+    setTimeout(() => confirmation.remove(), 2500);
+  } else {
+    errBox.textContent = '⚠️ ' + (d.error || COMMENT_FAILED_MSG);
+    errBox.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{{ t('evaluation_dashboard') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <div>
+                <h1 style="font-size: 48px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">{{ t('evaluation_dashboard') }}</h1>
+                <p style="color: #64748B; font-size: 18px;">{{ t('avg_ratings') }}</p>
+            </div>
+            <button onclick="window.location.href='/evaluation/personal'" class="btn btn-secondary">
+                {{ t('my_personal_eval') }}
+            </button>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="card" style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 32px; margin-bottom: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center;">
+                <div>
+                    <div style="font-size: 48px; font-weight: 800; margin-bottom: 8px;">{{ evaluation.total_reviews }}</div>
+                    <div style="font-size: 16px; opacity: 0.9;">{{ t('total_reviews') }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 48px; font-weight: 800; margin-bottom: 8px;">{{ evaluation.overall_rating }}</div>
+                    <div style="font-size: 16px; opacity: 0.9;">{{ t('overall_rating_label') }}</div>
+                    <div style="color: #FDE047; font-size: 24px; margin-top: 8px;">⭐⭐⭐⭐⭐</div>
+                </div>
+                <div>
+                    <div style="font-size: 48px; font-weight: 800; margin-bottom: 8px;">{{ evaluation.recommendation_percentage }}%</div>
+                    <div style="font-size: 16px; opacity: 0.9;">{{ t('recommend_percentage') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px;">{{ t('avg_ratings') }}</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;">
+            <div class="card">
+                <div style="text-align: center; padding: 24px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('content_quality') }}</div>
+                    <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.content_quality }}%</div>
+                    <div class="progress-bar" style="height: 8px;">
+                        <div class="progress-fill" style="width: {{ evaluation.content_quality }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="text-align: center; padding: 24px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('engagement') }}</div>
+                    <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.engagement }}%</div>
+                    <div class="progress-bar" style="height: 8px;">
+                        <div class="progress-fill" style="width: {{ evaluation.engagement }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="text-align: center; padding: 24px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #64748B; margin-bottom: 12px;">{{ t('responsiveness') }}</div>
+                    <div style="font-size: 48px; font-weight: 800; color: #0891B2; margin-bottom: 16px;">{{ evaluation.interaction }}%</div>
+                    <div class="progress-bar" style="height: 8px;">
+                        <div class="progress-fill" style="width: {{ evaluation.interaction }}%; background: linear-gradient(90deg, #0891B2, #00B8DB);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Evaluations -->
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px;">{{ t('recent_evaluations') }}</h2>
+        <div style="display: grid; gap: 16px;">
+            {% for eval in evaluation.all_evaluations %}
+            <div class="card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                            {{ eval.full_name[0] }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; color: #0F172A; margin-bottom: 4px;">{{ eval.full_name }}</div>
+                            <div style="font-size: 14px; color: #64748B;">{{ eval.created_at }}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: end;">
+                        <div style="color: #F59E0B; font-size: 20px; margin-bottom: 4px;">
+                            {% set rating = ((eval.instructor_rating + eval.platform_rating) / 2)|round|int %}
+                            {% for i in range(5) %}
+                                {% if i < rating %}⭐{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <div style="font-size: 14px; color: #64748B;">
+                            {% if eval.would_recommend %}
+                                <span style="color: #10B981;">{{ t('recommends') }}</span>
+                            {% else %}
+                                <span style="color: #EF4444;">{{ t('does_not_recommend') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
+                    <div style="text-align: center; padding: 12px; background: #F8FAFC; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #0891B2;">{{ eval.content_quality }}%</div>
+                        <div style="font-size: 12px; color: #64748B;">{{ t('content_quality') }}</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: #F8FAFC; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #0891B2;">{{ eval.engagement }}%</div>
+                        <div style="font-size: 12px; color: #64748B;">{{ t('engagement') }}</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px; background: #F8FAFC; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: #0891B2;">{{ eval.interaction }}%</div>
+                        <div style="font-size: 12px; color: #64748B;">{{ t('responsiveness') }}</div>
+                    </div>
+                </div>
+
+                {% if eval.comments %}
+                <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; border-inline-start: 4px solid #0891B2;">
+                    <div style="font-size: 14px; color: #0F172A; line-height: 1.6;">
+                        "{{ eval.comments }}"
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if evaluation.total_reviews == 0 %}
+        <div class="card" style="padding: 48px; text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 16px;">📊</div>
+            <h3 style="font-size: 24px; font-weight: 700; color: #0F172A; margin-bottom: 8px;">{{ t('no_evaluations_yet') }}</h3>
+            <p style="color: #64748B;">{{ t('be_first_evaluate') }}</p>
+            <button onclick="window.location.href='/evaluation/form'" class="btn btn-primary" style="margin-top: 24px;">
+                {{ t('start_evaluation') }}
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

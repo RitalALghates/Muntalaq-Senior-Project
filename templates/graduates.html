@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ t('page_graduates_title') }} - {% if current_lang == 'en' %}Muntalaq{% else %}منطلق{% endif %}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content-wrapper">
+    <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 8px;">{{ t('graduates_title') }}</h1>
+    <p style="color: #64748B; margin-bottom: 32px;">{{ t('graduates_subtitle') }}</p>
+
+    <!-- Top-Rated Section (FR5.9) -->
+    {% if top_rated %}
+    <div class="card" style="background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; padding: 32px; margin-bottom: 32px;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px; color: white;">{{ t('top_rated') }}</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        {% for g in top_rated %}
+        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 16px; border-radius: 12px; text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">
+            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}#{{ loop.index }}{% endif %}
+          </div>
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: white; color: #0891B2; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px;">
+            {{ g.full_name[0] }}
+          </div>
+          <div style="font-weight: 700; margin-bottom: 4px; color: white;">{{ g.full_name }}</div>
+          <div style="font-size: 14px; opacity: 0.9;">⭐ {{ g.rating }}</div>
+          <div style="font-size: 12px; opacity: 0.8;">{{ g.sessions_count }} {{ t('course_unit') }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Search (FR5.3) -->
+    <form method="GET" style="margin-bottom: 24px;">
+      <div style="display: flex; gap: 12px;">
+        <input type="text" name="q" value="{{ search }}"
+               placeholder="{{ t('search_graduate_placeholder') }}"
+               style="flex: 1; padding: 14px 20px; border: 2px solid #E2E8F0; border-radius: 12px; font-family: Cairo, sans-serif; font-size: 15px;">
+        <button type="submit" class="btn btn-primary" style="padding: 14px 32px;">{{ t('search') }}</button>
+        {% if search %}
+        <a href="{{ url_for('graduates_list') }}" class="btn btn-secondary" style="padding: 14px 24px; text-decoration: none;">{{ t('clear') }}</a>
+        {% endif %}
+      </div>
+    </form>
+
+    <!-- Graduates list (FR5.2) -->
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">{{ t('all_graduates') }}</h2>
+    {% if graduates %}
+    <div style="display: grid; gap: 16px;">
+      {% for g in graduates %}
+      <div class="card" style="display: flex; gap: 20px; align-items: center; padding: 20px; flex-wrap: wrap;">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #0891B2, #00B8DB); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 28px; flex-shrink: 0;">
+          {{ g.full_name[0] }}
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+          <h3 style="font-weight: 700; font-size: 20px; margin-bottom: 4px;">{{ g.full_name }}</h3>
+          <p style="color: #64748B; font-size: 14px; margin-bottom: 8px;">{{ g.major or '—' }} • {{ g.university or '' }}</p>
+          <div style="display: flex; gap: 16px; font-size: 14px; color: #64748B; flex-wrap: wrap;">
+            <span>📚 {{ g.sessions_count }} {{ t('course_unit') }}</span>
+            <span>⭐ {{ g.rating or '—' }} ({{ g.reviews_count }} {{ t('rating_unit') }})</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a href="{{ url_for('graduate_profile', graduate_id=g.id) }}"
+             class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px; text-decoration: none;">{{ t('view_profile_btn') }}</a>
+          <a href="{{ url_for('evaluate_graduate', graduate_id=g.id) }}"
+             class="btn btn-primary" style="padding: 10px 20px; font-size: 14px; text-decoration: none;">{{ t('rate_btn') }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 48px; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
+      <h3 style="font-weight: 700; margin-bottom: 8px;">{{ t('no_results') }}</h3>
+      <p style="color: #64748B;">{{ t('try_different_search') }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

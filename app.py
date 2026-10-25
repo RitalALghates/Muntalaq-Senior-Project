@@ -19,10 +19,16 @@ ALLOWED_IMAGE_EXTS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'muntalaq-secret-key-2024-change-in-production')
+_secret_key = os.getenv('FLASK_SECRET_KEY')
+if not _secret_key:
+    # No hard-coded fallback: a random key keeps sessions safe, but they reset on every restart.
+    _secret_key = secrets.token_hex(32)
+    print("WARNING: FLASK_SECRET_KEY is not set; using a temporary random key.")
+app.secret_key = _secret_key
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+# Initialize OpenAI client. A placeholder key lets the app start without AI features configured;
+# AI endpoints then fail gracefully instead of crashing the whole application at import time.
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY') or 'not-configured')
 
 # Available courses database for AI matching
 AVAILABLE_COURSES = [
@@ -4891,5 +4897,6 @@ if __name__ == '__main__':
     print(" Starting Muntalaq Platform...")
     print("📍 Server running on http://localhost:5001")
     print(" Arabic RTL interface ready!")
-    app.run(debug=True, host="127.0.0.1", port=5001)
+    debug_mode = os.getenv('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes')
+    app.run(debug=debug_mode, host="127.0.0.1", port=5001)
 
